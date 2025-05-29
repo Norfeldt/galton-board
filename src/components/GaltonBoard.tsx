@@ -3,14 +3,21 @@ import React, { useEffect, useRef, useState } from 'react';
 import Matter from 'matter-js';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Slider } from '@/components/ui/slider';
+import { Label } from '@/components/ui/label';
 
 const GaltonBoard: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const engineRef = useRef<Matter.Engine>();
   const renderRef = useRef<Matter.Render>();
   const ballsRef = useRef<Matter.Body[]>([]);
+  const pegsRef = useRef<Matter.Body[]>([]);
+  const pegOriginalPositions = useRef<{x: number, y: number}[]>([]);
+  const animationFrameRef = useRef<number>();
+  
   const [ballCount, setBallCount] = useState(0);
   const [binCounts, setBinCounts] = useState<number[]>(new Array(7).fill(0));
+  const [temperature, setTemperature] = useState([0]);
 
   useEffect(() => {
     if (!canvasRef.current) return;
@@ -57,6 +64,7 @@ const GaltonBoard: React.FC = () => {
 
     // Create pegs in triangular pattern
     const pegs: Matter.Body[] = [];
+    const originalPositions: {x: number, y: number}[] = [];
     const pegRadius = 8;
     const startY = 150;
     const rowSpacing = 50;
@@ -80,8 +88,12 @@ const GaltonBoard: React.FC = () => {
           }
         });
         pegs.push(peg);
+        originalPositions.push({ x, y });
       }
     }
+
+    pegsRef.current = pegs;
+    pegOriginalPositions.current = originalPositions;
 
     // Create bins at the bottom
     const bins: Matter.Body[] = [];
@@ -114,6 +126,30 @@ const GaltonBoard: React.FC = () => {
     Matter.Runner.run(runner, engine);
     Matter.Render.run(render);
 
+    // Animation loop for peg wiggling
+    const animate = () => {
+      const currentTemp = temperature[0];
+      const time = Date.now() * 0.005; // Time for oscillation
+      
+      pegsRef.current.forEach((peg, index) => {
+        const originalPos = pegOriginalPositions.current[index];
+        const wiggleAmount = currentTemp * 15; // Max wiggle distance based on temperature
+        
+        // Create smooth oscillation with slight randomness
+        const wiggleX = Math.sin(time + index * 0.5) * wiggleAmount;
+        const wiggleY = Math.cos(time * 0.7 + index * 0.3) * wiggleAmount * 0.3;
+        
+        Matter.Body.setPosition(peg, {
+          x: originalPos.x + wiggleX,
+          y: originalPos.y + wiggleY
+        });
+      });
+      
+      animationFrameRef.current = requestAnimationFrame(animate);
+    };
+
+    animate();
+
     // Collision detection for counting balls in bins
     Matter.Events.on(engine, 'afterUpdate', () => {
       const newBinCounts = new Array(7).fill(0);
@@ -131,11 +167,14 @@ const GaltonBoard: React.FC = () => {
     });
 
     return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
       Matter.Runner.stop(runner);
       Matter.Render.stop(render);
       Matter.Engine.clear(engine);
     };
-  }, []);
+  }, [temperature]);
 
   const dropBall = () => {
     if (!engineRef.current) return;
@@ -189,6 +228,26 @@ const GaltonBoard: React.FC = () => {
         <h1 className="text-4xl font-bold text-gray-800 mb-2">Galton Board</h1>
         <p className="text-gray-600">Watch balls create a normal distribution as they fall through pegs</p>
       </div>
+
+      {/* Temperature Control */}
+      <Card className="p-4 w-80">
+        <div className="space-y-3">
+          <Label className="text-sm font-medium">
+            Temperature: {temperature[0].toFixed(1)}
+          </Label>
+          <Slider
+            value={temperature}
+            onValueChange={setTemperature}
+            min={0}
+            max={1}
+            step={0.1}
+            className="w-full"
+          />
+          <p className="text-xs text-gray-500">
+            Higher temperature makes pegs wiggle more, creating more randomness
+          </p>
+        </div>
+      </Card>
 
       <div className="relative">
         <canvas
