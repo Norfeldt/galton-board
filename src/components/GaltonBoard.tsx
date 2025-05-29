@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import Matter from 'matter-js';
 import { Button } from '@/components/ui/button';
@@ -55,8 +54,8 @@ const GaltonBoard: React.FC = () => {
         isStatic: true,
         render: { fillStyle: '#e2e8f0' }
       }),
-      // Bottom
-      Matter.Bodies.rectangle(400, 610, 800, 20, { 
+      // Bottom - raised higher
+      Matter.Bodies.rectangle(400, 580, 800, 20, { 
         isStatic: true,
         render: { fillStyle: '#e2e8f0' }
       })
@@ -66,11 +65,11 @@ const GaltonBoard: React.FC = () => {
     const pegs: Matter.Body[] = [];
     const originalPositions: {x: number, y: number}[] = [];
     const pegRadius = 8;
-    const startY = 150;
-    const rowSpacing = 50;
+    const startY = 120;
+    const rowSpacing = 45;
     const pegSpacing = 80;
 
-    for (let row = 0; row < 8; row++) {
+    for (let row = 0; row < 7; row++) { // Reduced from 8 to 7 rows for better spacing
       const pegsInRow = row + 2;
       const rowWidth = (pegsInRow - 1) * pegSpacing;
       const startX = 400 - rowWidth / 2;
@@ -100,11 +99,11 @@ const GaltonBoard: React.FC = () => {
     pegsRef.current = pegs;
     pegOriginalPositions.current = originalPositions;
 
-    // Create bins at the bottom with beautiful colors
+    // Create bins at the bottom with beautiful colors - moved down and adjusted spacing
     const bins: Matter.Body[] = [];
     const binWidth = 80;
-    const binHeight = 100;
-    const binY = 520;
+    const binHeight = 80; // Reduced height
+    const binY = 480; // Moved up for better spacing from bottom
     
     for (let i = 0; i < 8; i++) {
       const binX = 80 + i * binWidth;
@@ -158,12 +157,12 @@ const GaltonBoard: React.FC = () => {
 
     animate();
 
-    // Collision detection for counting balls in bins
+    // Collision detection for counting balls in bins - updated for new bin position
     Matter.Events.on(engine, 'afterUpdate', () => {
       const newBinCounts = new Array(7).fill(0);
       
       ballsRef.current.forEach(ball => {
-        if (ball.position.y > 470) { // If ball is in bin area
+        if (ball.position.y > 440) { // Updated threshold for new bin position
           const binIndex = Math.floor((ball.position.x - 80) / 80);
           if (binIndex >= 0 && binIndex < 7) {
             newBinCounts[binIndex]++;
@@ -281,13 +280,13 @@ const GaltonBoard: React.FC = () => {
           height={600}
         />
         
-        {/* Bin labels with beautiful styling */}
-        <div className="absolute bottom-0 left-0 right-0 flex justify-center">
-          <div className="flex gap-0">
+        {/* Bin labels with beautiful styling - properly aligned */}
+        <div className="absolute bottom-0 left-0 right-0 flex justify-center items-end h-32">
+          <div className="flex gap-0 mb-4">
             {binCounts.map((count, index) => (
               <div
                 key={index}
-                className="w-20 text-center text-sm font-semibold text-white bg-gradient-to-t from-slate-900/80 to-slate-700/80 backdrop-blur-sm p-2 first:rounded-bl-2xl last:rounded-br-2xl border-r border-white/20 last:border-r-0"
+                className="w-20 text-center text-sm font-semibold text-white bg-gradient-to-t from-slate-900/80 to-slate-700/80 backdrop-blur-sm p-2 first:rounded-bl-lg last:rounded-br-lg border-r border-white/20 last:border-r-0"
               >
                 {count}
               </div>
