@@ -17,7 +17,7 @@ const GaltonBoard: React.FC = () => {
 
     // Create engine
     const engine = Matter.Engine.create();
-    engine.world.gravity.y = 0.8;
+    engine.world.gravity.y = 1;
     engineRef.current = engine;
 
     // Create renderer
@@ -27,10 +27,11 @@ const GaltonBoard: React.FC = () => {
       options: {
         width: 800,
         height: 600,
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        background: '#1a1a2e',
         wireframes: false,
         showAngleIndicator: false,
         showVelocity: false,
+        showDebug: false,
       }
     });
     renderRef.current = render;
@@ -40,26 +41,26 @@ const GaltonBoard: React.FC = () => {
       // Left wall
       Matter.Bodies.rectangle(-10, 300, 20, 600, { 
         isStatic: true,
-        render: { fillStyle: '#2D3748' }
+        render: { fillStyle: '#ffffff' }
       }),
       // Right wall
       Matter.Bodies.rectangle(810, 300, 20, 600, { 
         isStatic: true,
-        render: { fillStyle: '#2D3748' }
+        render: { fillStyle: '#ffffff' }
       }),
       // Bottom
       Matter.Bodies.rectangle(400, 610, 800, 20, { 
         isStatic: true,
-        render: { fillStyle: '#2D3748' }
+        render: { fillStyle: '#ffffff' }
       })
     ];
 
     // Create pegs in triangular pattern
     const pegs: Matter.Body[] = [];
-    const pegRadius = 6;
+    const pegRadius = 8;
     const startY = 150;
     const rowSpacing = 50;
-    const pegSpacing = 60;
+    const pegSpacing = 80;
 
     for (let row = 0; row < 8; row++) {
       const pegsInRow = row + 2;
@@ -73,8 +74,8 @@ const GaltonBoard: React.FC = () => {
         const peg = Matter.Bodies.circle(x, y, pegRadius, {
           isStatic: true,
           render: {
-            fillStyle: '#F7FAFC',
-            strokeStyle: '#E2E8F0',
+            fillStyle: '#ff6b6b',
+            strokeStyle: '#ffffff',
             lineWidth: 2
           }
         });
@@ -93,7 +94,7 @@ const GaltonBoard: React.FC = () => {
       // Left wall of bin
       const leftWall = Matter.Bodies.rectangle(binX, binY, 3, binHeight, {
         isStatic: true,
-        render: { fillStyle: '#4A5568' }
+        render: { fillStyle: '#4ecdc4' }
       });
       bins.push(leftWall);
     }
@@ -101,7 +102,7 @@ const GaltonBoard: React.FC = () => {
     // Right wall of last bin
     const lastBinWall = Matter.Bodies.rectangle(80 + 8 * binWidth, binY, 3, binHeight, {
       isStatic: true,
-      render: { fillStyle: '#4A5568' }
+      render: { fillStyle: '#4ecdc4' }
     });
     bins.push(lastBinWall);
 
@@ -109,7 +110,8 @@ const GaltonBoard: React.FC = () => {
     Matter.World.add(engine.world, [...walls, ...pegs, ...bins]);
 
     // Start the engine and renderer
-    Matter.Engine.run(engine);
+    const runner = Matter.Runner.create();
+    Matter.Runner.run(runner, engine);
     Matter.Render.run(render);
 
     // Collision detection for counting balls in bins
@@ -129,6 +131,7 @@ const GaltonBoard: React.FC = () => {
     });
 
     return () => {
+      Matter.Runner.stop(runner);
       Matter.Render.stop(render);
       Matter.Engine.clear(engine);
     };
@@ -140,14 +143,15 @@ const GaltonBoard: React.FC = () => {
     const ball = Matter.Bodies.circle(
       400 + (Math.random() - 0.5) * 20, // Small random offset
       50,
-      8,
+      10,
       {
-        restitution: 0.8,
-        friction: 0.001,
+        restitution: 0.7,
+        friction: 0.01,
+        frictionAir: 0.01,
         render: {
-          fillStyle: `hsl(${Math.random() * 60 + 180}, 70%, 60%)`, // Random blue/purple
-          strokeStyle: '#FFFFFF',
-          lineWidth: 1
+          fillStyle: '#ffe66d',
+          strokeStyle: '#ffffff',
+          lineWidth: 2
         }
       }
     );
@@ -156,12 +160,12 @@ const GaltonBoard: React.FC = () => {
     Matter.World.add(engineRef.current.world, ball);
     setBallCount(prev => prev + 1);
 
-    console.log(`Ball ${ballCount + 1} dropped!`);
+    console.log(`Ball ${ballCount + 1} dropped at position:`, ball.position);
   };
 
   const dropMultipleBalls = () => {
     for (let i = 0; i < 10; i++) {
-      setTimeout(() => dropBall(), i * 100);
+      setTimeout(() => dropBall(), i * 200);
     }
   };
 
@@ -189,7 +193,9 @@ const GaltonBoard: React.FC = () => {
       <div className="relative">
         <canvas
           ref={canvasRef}
-          className="border-2 border-gray-300 rounded-lg shadow-lg"
+          className="border-2 border-gray-300 rounded-lg shadow-lg bg-gray-900"
+          width={800}
+          height={600}
         />
         
         {/* Bin labels */}
