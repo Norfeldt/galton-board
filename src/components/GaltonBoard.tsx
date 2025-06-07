@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 import Matter from 'matter-js';
 import { Button } from '@/components/ui/button';
@@ -19,6 +20,7 @@ const GaltonBoard: React.FC = () => {
   const [binCounts, setBinCounts] = useState<number[]>(new Array(7).fill(0));
   const [temperature, setTemperature] = useState([0]);
   const [randomness, setRandomness] = useState(true);
+  const [dropPosition, setDropPosition] = useState([400]); // Center position by default
 
   useEffect(() => {
     if (!canvasRef.current) return;
@@ -63,22 +65,29 @@ const GaltonBoard: React.FC = () => {
       })
     ];
 
-    // Create pegs in triangular pattern with beautiful gradient colors
+    // Create pegs spanning full width with staggered rows
     const pegs: Matter.Body[] = [];
     const originalPositions: {x: number, y: number}[] = [];
     const pegRadius = 8;
     const startY = 120;
     const rowSpacing = 45;
-    const pegSpacing = 80;
+    const pegSpacing = 50; // Closer spacing for more pegs
+    const boardMargin = 60; // Margin from edges
 
-    for (let row = 0; row < 7; row++) { // Reduced from 8 to 7 rows for better spacing
-      const pegsInRow = row + 2;
-      const rowWidth = (pegsInRow - 1) * pegSpacing;
-      const startX = 400 - rowWidth / 2;
-
+    for (let row = 0; row < 7; row++) {
+      const isEvenRow = row % 2 === 0;
+      const offsetX = isEvenRow ? 0 : pegSpacing / 2; // Stagger every other row
+      
+      // Calculate how many pegs fit across the width
+      const availableWidth = 800 - (2 * boardMargin);
+      const pegsInRow = Math.floor(availableWidth / pegSpacing) + 1;
+      
       for (let col = 0; col < pegsInRow; col++) {
-        const x = startX + col * pegSpacing;
+        const x = boardMargin + offsetX + col * pegSpacing;
         const y = startY + row * rowSpacing;
+        
+        // Skip if peg would be outside bounds
+        if (x < boardMargin || x > 800 - boardMargin) continue;
         
         // Create gradient effect with different shades of blue/purple
         const hue = 220 + (row * 10) + (col * 5); // Blue to purple gradient
@@ -200,8 +209,10 @@ const GaltonBoard: React.FC = () => {
     ];
     const randomColor = ballColors[Math.floor(Math.random() * ballColors.length)];
 
+    const ballDropX = dropPosition[0] + (randomness ? (Math.random() - 0.5) * 20 : 0);
+    
     const ball = Matter.Bodies.circle(
-      randomness ? 400 + (Math.random() - 0.5) * 20 : 400, // Apply randomness only if enabled
+      ballDropX, // Use slider position
       50,
       10,
       {
@@ -253,6 +264,26 @@ const GaltonBoard: React.FC = () => {
           Watch colorful balls create a beautiful normal distribution as they cascade through the pegs
         </p>
       </div>
+
+      {/* Drop Position Control */}
+      <Card className="p-6 w-96 bg-white/80 backdrop-blur-sm border-0 shadow-xl">
+        <div className="space-y-4">
+          <Label className="text-base font-semibold text-slate-700">
+            Drop Position
+          </Label>
+          <Slider
+            value={dropPosition}
+            onValueChange={setDropPosition}
+            min={100}
+            max={700}
+            step={10}
+            className="w-full"
+          />
+          <p className="text-sm text-slate-500">
+            Control where balls are dropped from left to right
+          </p>
+        </div>
+      </Card>
 
       <div className="flex gap-6">
         {/* Temperature Control */}
