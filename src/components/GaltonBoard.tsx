@@ -140,19 +140,6 @@ const GaltonBoard: React.FC = () => {
       <div ref={containerRef} className="flex flex-col items-center relative w-full mx-auto">
         {/* Physics-based slider is now rendered within the Matter.js canvas */}
 
-        {/* Total balls counter - responsive positioning */}
-        <div
-          className="absolute z-10"
-          style={{
-            top: `${canvasHeight * 0.15}px`,
-            left: '50%',
-            transform: 'translateX(-50%)',
-          }}>
-          <div className="bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg border border-white/20">
-            <p className="text-sm sm:text-lg font-bold text-slate-700">Total Balls: {ballCount}</p>
-          </div>
-        </div>
-
         <canvas
           ref={canvasRef}
           className="border-0 rounded-t-2xl shadow-2xl bg-white block"
@@ -243,6 +230,11 @@ const GaltonBoard: React.FC = () => {
                 {index}
               </div>
             ))}
+          </div>
+
+          {/* Total balls counter */}
+          <div className="text-center pb-4">
+            <p className="text-lg font-bold text-slate-700">Total Balls: {ballCount}</p>
           </div>
         </div>
       </div>
