@@ -1,110 +1,71 @@
-
-import React from 'react';
-import { Card } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { Slider } from '@/components/ui/slider';
-import { Switch } from '@/components/ui/switch';
+import React from 'react'
+import { Label } from '@/components/ui/label'
+import { Slider } from '@/components/ui/slider'
+import { Switch } from '@/components/ui/switch'
+import { Card } from '@/components/ui/card'
 
 interface GaltonControlsProps {
-  dropPosition: number[];
-  setDropPosition: (value: number[]) => void;
-  temperature: number[];
-  setTemperature: (value: number[]) => void;
-  randomness: boolean;
-  setRandomness: (value: boolean) => void;
-  ballCollisions: boolean;
-  setBallCollisions: (value: boolean) => void;
+  temperature: number[]
+  setTemperature: (value: number[]) => void
+  randomness: boolean
+  setRandomness: (value: boolean) => void
+  ballCollisions: boolean
+  setBallCollisions: (value: boolean) => void
 }
 
 export const GaltonControls: React.FC<GaltonControlsProps> = ({
-  dropPosition,
-  setDropPosition,
   temperature,
   setTemperature,
   randomness,
   setRandomness,
   ballCollisions,
-  setBallCollisions
+  setBallCollisions,
 }) => {
   return (
-    <>
-      {/* Drop Position Control */}
-      <Card className="p-6 w-96 bg-white/80 backdrop-blur-sm border-0 shadow-xl">
-        <div className="space-y-4">
+    <Card className="w-full max-w-[800px] bg-white/90 backdrop-blur-sm shadow-2xl border-0 rounded-2xl p-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
+        {/* Temperature Control */}
+        <div className="space-y-3">
           <Label className="text-base font-semibold text-slate-700">
-            Drop Position
+            Temperature: {temperature[0].toFixed(1)}
           </Label>
           <Slider
-            value={dropPosition}
-            onValueChange={setDropPosition}
-            min={100}
-            max={700}
-            step={10}
-            className="w-full"
+            value={temperature}
+            onValueChange={setTemperature}
+            min={0}
+            max={1}
+            step={0.1}
+            className="w-full [&_[role=slider]]:bg-slate-700 [&_[data-orientation=horizontal]]:bg-slate-400"
           />
-          <p className="text-sm text-slate-500">
-            Control where balls are dropped from left to right
+          <p className="text-xs text-slate-500 leading-tight">
+            Higher temperature makes pegs wiggle more, creating more randomness
           </p>
         </div>
-      </Card>
-
-      <div className="flex gap-6">
-        {/* Temperature Control */}
-        <Card className="p-6 w-96 bg-white/80 backdrop-blur-sm border-0 shadow-xl">
-          <div className="space-y-4">
-            <Label className="text-base font-semibold text-slate-700">
-              Temperature: {temperature[0].toFixed(1)}
-            </Label>
-            <Slider
-              value={temperature}
-              onValueChange={setTemperature}
-              min={0}
-              max={1}
-              step={0.1}
-              className="w-full"
-            />
-            <p className="text-sm text-slate-500">
-              Higher temperature makes pegs wiggle more, creating more randomness
-            </p>
-          </div>
-        </Card>
 
         {/* Randomness Control */}
-        <Card className="p-6 w-96 bg-white/80 backdrop-blur-sm border-0 shadow-xl">
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <Label className="text-base font-semibold text-slate-700">
-                Randomness
-              </Label>
-              <Switch 
-                checked={randomness} 
-                onCheckedChange={setRandomness}
-              />
-            </div>
-            <p className="text-sm text-slate-500">
-              {randomness ? 'Balls will bounce randomly' : 'Balls will follow the same predictable path'}
-            </p>
-          </div>
-        </Card>
-      </div>
-
-      {/* Ball Collisions Control */}
-      <Card className="p-6 w-96 bg-white/80 backdrop-blur-sm border-0 shadow-xl">
-        <div className="space-y-4">
+        <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <Label className="text-base font-semibold text-slate-700">
-              Ball Collisions
-            </Label>
-            <Switch 
-              checked={ballCollisions} 
-              onCheckedChange={setBallCollisions}
-            />
+            <Label className="text-base font-semibold text-slate-700">Randomness</Label>
+            <Switch checked={randomness} onCheckedChange={setRandomness} />
           </div>
-          <p className="text-sm text-slate-500">
+          <p className="text-xs text-slate-500 leading-tight">
+            {randomness
+              ? 'Balls will bounce randomly'
+              : 'Balls will follow the same predictable path'}
+          </p>
+        </div>
+
+        {/* Ball Collisions Control */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <Label className="text-base font-semibold text-slate-700">Ball Collisions</Label>
+            <Switch checked={ballCollisions} onCheckedChange={setBallCollisions} />
+          </div>
+          <p className="text-xs text-slate-500 leading-tight">
             {ballCollisions ? 'Balls can bounce off each other' : 'Balls pass through each other'}
           </p>
         </div>
-      </Card>
-    </>
-  );
-};
+      </div>
+    </Card>
+  )
+}
