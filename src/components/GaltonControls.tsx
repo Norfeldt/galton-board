@@ -22,8 +22,8 @@ export const GaltonControls: React.FC<GaltonControlsProps> = ({
   setBallCollisions,
 }) => {
   return (
-    <Card className="w-full max-w-[800px] bg-white/90 backdrop-blur-sm shadow-2xl border-0 rounded-2xl p-8">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
+    <Card className="w-full max-w-6xl bg-white/90 backdrop-blur-sm shadow-2xl border-0 rounded-2xl p-4 sm:p-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 items-start">
         {/* Temperature Control */}
         <div className="space-y-3">
           <Label className="text-base font-semibold text-slate-700">

@@ -2,23 +2,37 @@ import React, { useRef, useState, useCallback } from 'react'
 import Matter from 'matter-js'
 import { Card } from '@/components/ui/card'
 import { useGaltonPhysics } from '@/hooks/useGaltonPhysics'
+import { useResponsiveCanvas } from '@/hooks/useResponsiveCanvas'
 import { GaltonControls } from './GaltonControls'
 import { GaltonActions } from './GaltonActions'
 import { createBall } from '@/utils/matterBodies'
-import * as SliderPrimitive from '@radix-ui/react-slider'
-import { cn } from '@/lib/utils'
 
 const GaltonBoard: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
   const [ballCount, setBallCount] = useState(0)
   const [binCounts, setBinCounts] = useState<number[]>(new Array(9).fill(0))
   const [temperature, setTemperature] = useState([0])
   const [randomness, setRandomness] = useState(true)
-  const [dropPosition, setDropPosition] = useState([400])
+  const [dropPosition, setDropPosition] = useState(0) // Will be set to canvas center when canvas loads
   const [ballCollisions, setBallCollisions] = useState(true)
   const [flashingBins, setFlashingBins] = useState<Set<number>>(new Set())
   const previousBinCountsRef = useRef<number[]>(new Array(9).fill(0))
   const pendingDropsRef = useRef<NodeJS.Timeout[]>([])
+
+  // Get responsive canvas dimensions
+  const { width: canvasWidth, height: canvasHeight, scale } = useResponsiveCanvas(containerRef)
+
+  const handleDropPositionChange = useCallback((position: number) => {
+    setDropPosition(position)
+  }, [])
+
+  // Set initial drop position to canvas center when canvas dimensions are available
+  React.useEffect(() => {
+    if (canvasWidth > 0 && dropPosition === 0) {
+      setDropPosition(canvasWidth / 2)
+    }
+  }, [canvasWidth, dropPosition])
 
   const handleBinCountsUpdate = useCallback((counts: number[]) => {
     const previousCounts = previousBinCountsRef.current
@@ -48,13 +62,19 @@ const GaltonBoard: React.FC = () => {
     temperature: temperature[0],
     ballCollisions,
     onBinCountsUpdate: handleBinCountsUpdate,
+    onDropPositionChange: handleDropPositionChange,
+    dropPosition,
+    canvasWidth,
+    canvasHeight,
+    scale,
   })
 
   const dropBall = useCallback(() => {
-    if (!engineRef.current) return
+    if (!engineRef.current || dropPosition === 0) return
 
-    const ballDropX = dropPosition[0] + (randomness ? (Math.random() - 0.5) * 20 : 0)
-    const ball = createBall(ballDropX, randomness, ballCollisions)
+    // Use drop position directly since it's already in canvas coordinates
+    const ballDropX = dropPosition + (randomness ? (Math.random() - 0.5) * 20 * scale : 0)
+    const ball = createBall(ballDropX, randomness, ballCollisions, scale)
     ballsRef.current.push(ball)
     Matter.World.add(engineRef.current.world, ball)
     setBallCount((prev) => prev + 1)
@@ -63,7 +83,7 @@ const GaltonBoard: React.FC = () => {
       ball.position,
       `Randomness: ${randomness}`
     )
-  }, [engineRef, ballsRef, dropPosition, randomness, ballCollisions, ballCount])
+  }, [engineRef, ballsRef, dropPosition, randomness, ballCollisions, ballCount, scale])
 
   const dropMultipleBalls = useCallback(
     (count: number) => {
@@ -92,18 +112,18 @@ const GaltonBoard: React.FC = () => {
     ballsRef.current = []
     setBallCount(0)
     setBinCounts(new Array(9).fill(0))
-    setDropPosition([400]) // Reset slider to center position
+    setDropPosition(canvasWidth / 2) // Reset slider to center of canvas
     console.log('Simulation reset!')
-  }, [engineRef, ballsRef])
+  }, [engineRef, ballsRef, canvasWidth])
 
   return (
-    <div className="flex flex-col items-center gap-6 p-8 px-8 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 min-h-screen">
+    <div className="flex flex-col items-center gap-6 py-4 px-2 sm:py-8 sm:px-4 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 min-h-screen">
       {/* Title */}
       <div className="text-center">
-        <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent mb-4">
+        <h1 className="text-3xl sm:text-5xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent mb-4">
           Galton Board
         </h1>
-        <p className="text-lg text-slate-600 max-w-2xl">
+        <p className="text-sm sm:text-lg text-slate-600 max-w-2xl px-4">
           Watch colorful balls create a beautiful normal distribution as they cascade through the
           pegs
         </p>
@@ -116,38 +136,33 @@ const GaltonBoard: React.FC = () => {
         onReset={resetSimulation}
       />
 
-      {/* Canvas */}
-      <div className="flex flex-col items-center relative bg-white rounded-2xl">
-        {/* Drop Position Slider - absolute positioned at top */}
-        <div className="absolute top-4 z-20" style={{ left: '100px', width: '600px' }}>
-          <SliderPrimitive.Root
-            value={dropPosition}
-            onValueChange={setDropPosition}
-            min={100}
-            max={700}
-            step={10}
-            className="relative flex w-full touch-none select-none items-center">
-            <SliderPrimitive.Track className="relative h-2 w-full grow overflow-hidden rounded-full bg-slate-200"></SliderPrimitive.Track>
-            <SliderPrimitive.Thumb className="block h-4 w-4 rounded-full border-2 border-slate-400 bg-white shadow-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50" />
-          </SliderPrimitive.Root>
-        </div>
+      {/* Canvas Container */}
+      <div ref={containerRef} className="flex flex-col items-center relative w-full mx-auto">
+        {/* Physics-based slider is now rendered within the Matter.js canvas */}
 
-        {/* Total balls counter - absolute positioned below slider */}
-        <div className="absolute top-52 left-1/2 transform -translate-x-1/2 z-10">
+        {/* Total balls counter - responsive positioning */}
+        <div
+          className="absolute z-10"
+          style={{
+            top: `${canvasHeight * 0.15}px`,
+            left: '50%',
+            transform: 'translateX(-50%)',
+          }}>
           <div className="bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg border border-white/20">
-            <p className="text-lg font-bold text-slate-700">Total Balls: {ballCount}</p>
+            <p className="text-sm sm:text-lg font-bold text-slate-700">Total Balls: {ballCount}</p>
           </div>
         </div>
 
         <canvas
           ref={canvasRef}
-          className="border-0 rounded-t-2xl shadow-2xl bg-white"
-          width={800}
-          height={600}
+          className="border-0 rounded-t-2xl shadow-2xl bg-white block"
+          width={canvasWidth}
+          height={canvasHeight}
+          style={{ maxWidth: '100%', height: 'auto' }}
         />
 
         {/* Bin labels with beautiful styling - seamlessly connected */}
-        <div className="flex w-full max-w-[800px] shadow-2xl -mt-1">
+        <div className="flex w-full shadow-2xl -mt-1" style={{ maxWidth: `${canvasWidth}px` }}>
           {binCounts.map((count, index) => {
             const isFirst = index === 0
             const isLast = index === binCounts.length - 1
@@ -168,7 +183,7 @@ const GaltonBoard: React.FC = () => {
                         intensity + 10
                       }%))`,
                   borderRight: isLast ? 'none' : '1px solid rgba(255,255,255,0.3)',
-                  minHeight: '40px',
+                  minHeight: `${40 * scale}px`,
                 }}>
                 {/* Background pattern */}
                 <div className="absolute inset-0 opacity-20">
@@ -177,7 +192,7 @@ const GaltonBoard: React.FC = () => {
 
                 {/* Content */}
                 <div className="relative z-10 flex flex-col justify-center items-center h-full py-2">
-                  <div className="text-lg font-extrabold drop-shadow-lg">{count}</div>
+                  <div className="text-xs sm:text-lg font-extrabold drop-shadow-lg">{count}</div>
                 </div>
 
                 {/* Pinball-style flash effect */}
@@ -194,13 +209,17 @@ const GaltonBoard: React.FC = () => {
         </div>
 
         {/* Bar chart below bin labels */}
-        <div className="w-full max-w-[800px] bg-white/80 backdrop-blur-sm rounded-b-2xl shadow-2xl pt-4">
-          <div className="flex items-end h-20 border-b border-slate-00">
+        <div
+          className="w-full bg-white/80 backdrop-blur-sm rounded-b-2xl shadow-2xl pt-4"
+          style={{ maxWidth: `${canvasWidth}px` }}>
+          <div
+            className="flex items-end border-b border-slate-00"
+            style={{ height: `${80 * scale}px` }}>
             {binCounts.map((count, index) => {
               const hue = 220 + index * 15
               const intensity = 60
               const maxCount = Math.max(...binCounts, 1)
-              const height = (count / maxCount) * 80 // Max height of 80px
+              const height = (count / maxCount) * 80 * scale // Scale the max height
 
               return (
                 <div key={index} className="flex-1 flex flex-col items-center justify-end">
