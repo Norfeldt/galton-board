@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import Matter from 'matter-js';
 import { Button } from '@/components/ui/button';
@@ -21,6 +20,7 @@ const GaltonBoard: React.FC = () => {
   const [temperature, setTemperature] = useState([0]);
   const [randomness, setRandomness] = useState(true);
   const [dropPosition, setDropPosition] = useState([400]); // Center position by default
+  const [ballCollisions, setBallCollisions] = useState(true);
 
   useEffect(() => {
     if (!canvasRef.current) return;
@@ -192,7 +192,7 @@ const GaltonBoard: React.FC = () => {
       Matter.Render.stop(render);
       Matter.Engine.clear(engine);
     };
-  }, [temperature]);
+  }, [temperature, ballCollisions]);
 
   const dropBall = () => {
     if (!engineRef.current) return;
@@ -227,6 +227,14 @@ const GaltonBoard: React.FC = () => {
       }
     );
 
+    // Set collision filtering based on ballCollisions setting
+    if (!ballCollisions) {
+      ball.collisionFilter = {
+        category: 0x0002,
+        mask: 0x0001 // Only collide with pegs and walls (category 0x0001), not other balls (0x0002)
+      };
+    }
+
     ballsRef.current.push(ball);
     Matter.World.add(engineRef.current.world, ball);
     setBallCount(prev => prev + 1);
@@ -234,8 +242,8 @@ const GaltonBoard: React.FC = () => {
     console.log(`Ball ${ballCount + 1} dropped at position:`, ball.position, `Randomness: ${randomness}`);
   };
 
-  const dropMultipleBalls = () => {
-    for (let i = 0; i < 10; i++) {
+  const dropMultipleBalls = (count: number) => {
+    for (let i = 0; i < count; i++) {
       setTimeout(() => dropBall(), i * 200);
     }
   };
@@ -265,7 +273,7 @@ const GaltonBoard: React.FC = () => {
         </p>
       </div>
 
-      {/* Drop Position Control */}
+      {/* Drop Position Control - moved to top */}
       <Card className="p-6 w-96 bg-white/80 backdrop-blur-sm border-0 shadow-xl">
         <div className="space-y-4">
           <Label className="text-base font-semibold text-slate-700">
@@ -325,6 +333,24 @@ const GaltonBoard: React.FC = () => {
         </Card>
       </div>
 
+      {/* Ball Collisions Control */}
+      <Card className="p-6 w-96 bg-white/80 backdrop-blur-sm border-0 shadow-xl">
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <Label className="text-base font-semibold text-slate-700">
+              Ball Collisions
+            </Label>
+            <Switch 
+              checked={ballCollisions} 
+              onCheckedChange={setBallCollisions}
+            />
+          </div>
+          <p className="text-sm text-slate-500">
+            {ballCollisions ? 'Balls can bounce off each other' : 'Balls pass through each other'}
+          </p>
+        </div>
+      </Card>
+
       <div className="relative">
         <canvas
           ref={canvasRef}
@@ -356,10 +382,22 @@ const GaltonBoard: React.FC = () => {
           Drop Ball
         </Button>
         <Button 
-          onClick={dropMultipleBalls} 
+          onClick={() => dropMultipleBalls(10)} 
           className="bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
         >
           Drop 10 Balls
+        </Button>
+        <Button 
+          onClick={() => dropMultipleBalls(50)} 
+          className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+        >
+          Drop 50 Balls
+        </Button>
+        <Button 
+          onClick={() => dropMultipleBalls(100)} 
+          className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+        >
+          Drop 100 Balls
         </Button>
         <Button 
           onClick={resetSimulation} 
