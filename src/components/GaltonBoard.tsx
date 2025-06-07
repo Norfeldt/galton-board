@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 
 const GaltonBoard: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -17,6 +18,7 @@ const GaltonBoard: React.FC = () => {
   const [ballCount, setBallCount] = useState(0);
   const [binCounts, setBinCounts] = useState<number[]>(new Array(7).fill(0));
   const [temperature, setTemperature] = useState([0]);
+  const [randomness, setRandomness] = useState(true);
 
   useEffect(() => {
     if (!canvasRef.current) return;
@@ -99,11 +101,11 @@ const GaltonBoard: React.FC = () => {
     pegsRef.current = pegs;
     pegOriginalPositions.current = originalPositions;
 
-    // Create bins at the bottom with beautiful colors - moved down and adjusted spacing
+    // Create bins at the bottom with beautiful colors - walls extend to bottom
     const bins: Matter.Body[] = [];
     const binWidth = 80;
-    const binHeight = 80; // Reduced height
-    const binY = 480; // Moved up for better spacing from bottom
+    const binHeight = 120; // Extended height to reach bottom
+    const binY = 520; // Moved down to extend to bottom
     
     for (let i = 0; i < 8; i++) {
       const binX = 80 + i * binWidth;
@@ -199,13 +201,13 @@ const GaltonBoard: React.FC = () => {
     const randomColor = ballColors[Math.floor(Math.random() * ballColors.length)];
 
     const ball = Matter.Bodies.circle(
-      400 + (Math.random() - 0.5) * 20, // Small random offset
+      randomness ? 400 + (Math.random() - 0.5) * 20 : 400, // Apply randomness only if enabled
       50,
       10,
       {
-        restitution: 0.7,
-        friction: 0.01,
-        frictionAir: 0.01,
+        restitution: randomness ? 0.7 : 0.8, // More consistent bouncing when randomness is off
+        friction: randomness ? 0.01 : 0.005, // Less friction for more predictable paths
+        frictionAir: randomness ? 0.01 : 0.005,
         render: {
           fillStyle: randomColor,
           strokeStyle: '#ffffff',
@@ -218,7 +220,7 @@ const GaltonBoard: React.FC = () => {
     Matter.World.add(engineRef.current.world, ball);
     setBallCount(prev => prev + 1);
 
-    console.log(`Ball ${ballCount + 1} dropped at position:`, ball.position);
+    console.log(`Ball ${ballCount + 1} dropped at position:`, ball.position, `Randomness: ${randomness}`);
   };
 
   const dropMultipleBalls = () => {
@@ -252,25 +254,45 @@ const GaltonBoard: React.FC = () => {
         </p>
       </div>
 
-      {/* Temperature Control */}
-      <Card className="p-6 w-96 bg-white/80 backdrop-blur-sm border-0 shadow-xl">
-        <div className="space-y-4">
-          <Label className="text-base font-semibold text-slate-700">
-            Temperature: {temperature[0].toFixed(1)}
-          </Label>
-          <Slider
-            value={temperature}
-            onValueChange={setTemperature}
-            min={0}
-            max={1}
-            step={0.1}
-            className="w-full"
-          />
-          <p className="text-sm text-slate-500">
-            Higher temperature makes pegs wiggle more, creating more randomness
-          </p>
-        </div>
-      </Card>
+      <div className="flex gap-6">
+        {/* Temperature Control */}
+        <Card className="p-6 w-96 bg-white/80 backdrop-blur-sm border-0 shadow-xl">
+          <div className="space-y-4">
+            <Label className="text-base font-semibold text-slate-700">
+              Temperature: {temperature[0].toFixed(1)}
+            </Label>
+            <Slider
+              value={temperature}
+              onValueChange={setTemperature}
+              min={0}
+              max={1}
+              step={0.1}
+              className="w-full"
+            />
+            <p className="text-sm text-slate-500">
+              Higher temperature makes pegs wiggle more, creating more randomness
+            </p>
+          </div>
+        </Card>
+
+        {/* Randomness Control */}
+        <Card className="p-6 w-96 bg-white/80 backdrop-blur-sm border-0 shadow-xl">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <Label className="text-base font-semibold text-slate-700">
+                Randomness
+              </Label>
+              <Switch 
+                checked={randomness} 
+                onCheckedChange={setRandomness}
+              />
+            </div>
+            <p className="text-sm text-slate-500">
+              {randomness ? 'Balls will bounce randomly' : 'Balls will follow the same predictable path'}
+            </p>
+          </div>
+        </Card>
+      </div>
 
       <div className="relative">
         <canvas
