@@ -27,14 +27,14 @@ export const GaltonControls: React.FC<GaltonControlsProps> = ({
         {/* Temperature Control */}
         <div className="space-y-3">
           <Label className="text-base font-semibold text-slate-700">
-            Temperature: {temperature[0].toFixed(1)}
+            Temperature: {temperature[0].toFixed(2)}
           </Label>
           <Slider
             value={temperature}
             onValueChange={setTemperature}
             min={0}
             max={1}
-            step={0.1}
+            step={1 / 7 + 0.01}
             className="w-full [&_[role=slider]]:bg-slate-700 [&_[data-orientation=horizontal]]:bg-slate-400"
           />
           <p className="text-xs text-slate-500 leading-tight">

@@ -5,16 +5,6 @@ export const createWalls = (
   canvasHeight: number = 600
 ): Matter.Body[] => {
   return [
-    // Left wall
-    Matter.Bodies.rectangle(2, canvasHeight / 2, 4, canvasHeight, {
-      isStatic: true,
-      render: { fillStyle: '#ffffff' },
-    }),
-    // Right wall
-    Matter.Bodies.rectangle(canvasWidth - 2, canvasHeight / 2, 4, canvasHeight, {
-      isStatic: true,
-      render: { fillStyle: '#ffffff' },
-    }),
     // Bottom - positioned at canvas bottom
     Matter.Bodies.rectangle(canvasWidth / 2, canvasHeight - 10, canvasWidth, 20, {
       isStatic: true,
@@ -72,28 +62,29 @@ export const createPegs = (
 ): {
   pegs: Matter.Body[]
   originalPositions: { x: number; y: number }[]
+  rowInfo: number[]
 } => {
   const pegs: Matter.Body[] = []
   const originalPositions: { x: number; y: number }[] = []
+  const rowInfo: number[] = []
   const scale = canvasWidth / 800 // Scale factor based on original 800px width
   const pegRadius = 8 * scale
   const startY = 120 * scale
   const rowSpacing = 45 * scale
   const pegSpacing = 50 * scale
-  const boardMargin = 60 * scale
+  const extendMargin = 100 * scale // Extra space to extend pegs outside canvas
 
   for (let row = 0; row < 7; row++) {
     const isEvenRow = row % 2 === 0
     const offsetX = isEvenRow ? 0 : pegSpacing / 2
 
-    const availableWidth = canvasWidth - 2 * boardMargin
-    const pegsInRow = Math.floor(availableWidth / pegSpacing) + 1
+    // Extend the peg field beyond canvas boundaries
+    const totalWidth = canvasWidth + 2 * extendMargin
+    const pegsInRow = Math.floor(totalWidth / pegSpacing) + 2
 
     for (let col = 0; col < pegsInRow; col++) {
-      const x = boardMargin + offsetX + col * pegSpacing
+      const x = -extendMargin + offsetX + col * pegSpacing
       const y = startY + row * rowSpacing
-
-      if (x < boardMargin || x > canvasWidth - boardMargin) continue
 
       const hue = 220 + row * 10 + col * 5
       const saturation = 70 + row * 2
@@ -109,10 +100,11 @@ export const createPegs = (
       })
       pegs.push(peg)
       originalPositions.push({ x, y })
+      rowInfo.push(row)
     }
   }
 
-  return { pegs, originalPositions }
+  return { pegs, originalPositions, rowInfo }
 }
 
 export const createBins = (

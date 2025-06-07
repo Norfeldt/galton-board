@@ -30,12 +30,14 @@ export const useGaltonPhysics = ({
   const ballsRef = useRef<Matter.Body[]>([])
   const pegsRef = useRef<Matter.Body[]>([])
   const pegOriginalPositions = useRef<{ x: number; y: number }[]>([])
+  const pegRowInfo = useRef<number[]>([]) // Store which row each peg belongs to
   const sliderHandleRef = useRef<Matter.Body>()
   const sliderTrackRef = useRef<Matter.Body>()
   const mouseRef = useRef<Matter.Mouse>()
   const mouseConstraintRef = useRef<Matter.MouseConstraint>()
   const animationFrameRef = useRef<number>()
   const isDraggingSlider = useRef<boolean>(false)
+  const temperatureRef = useRef<number>(temperature)
 
   // Effect to sync slider handle position with dropPosition state
   useEffect(() => {
@@ -89,12 +91,13 @@ export const useGaltonPhysics = ({
 
     // Create world bodies with scaling
     const walls = createWalls(canvasWidth, canvasHeight)
-    const { pegs, originalPositions } = createPegs(canvasWidth, canvasHeight)
+    const { pegs, originalPositions, rowInfo } = createPegs(canvasWidth, canvasHeight)
     const bins = createBins(canvasWidth, canvasHeight)
     const { track, handle } = createSlider(canvasWidth, canvasHeight)
 
     pegsRef.current = pegs
     pegOriginalPositions.current = originalPositions
+    pegRowInfo.current = rowInfo
     sliderTrackRef.current = track
     sliderHandleRef.current = handle
 
@@ -156,12 +159,25 @@ export const useGaltonPhysics = ({
 
     // Animation loop for peg wiggling
     const animate = () => {
-      const currentTemp = temperature
+      const currentTemp = temperatureRef.current
       const time = Date.now() * 0.005
+      const totalRows = 7 // Total number of peg rows
+      const activeRows = Math.floor(currentTemp * 7) // Temperature 0.0-0.14 = 0 rows, 0.14-0.28 = 1 row, etc.
 
       pegsRef.current.forEach((peg, index) => {
         const originalPos = pegOriginalPositions.current[index]
-        const wiggleAmount = currentTemp * 15 * scale
+
+        // Get the row this peg belongs to (0 = top row, 6 = bottom row)
+        const pegRow = pegRowInfo.current[index]
+
+        // Check if this row should be active (counting from bottom)
+        const rowFromBottom = totalRows - 1 - pegRow
+        const shouldWiggle = rowFromBottom < activeRows
+
+        let wiggleAmount = 0
+        if (shouldWiggle) {
+          wiggleAmount = 15 * scale // Full wiggle intensity for active rows
+        }
 
         const wiggleX = Math.sin(time + index * 0.5) * wiggleAmount
         const wiggleY = Math.cos(time * 0.7 + index * 0.3) * wiggleAmount * 0.3
@@ -205,16 +221,33 @@ export const useGaltonPhysics = ({
       Matter.Render.stop(render)
       Matter.Engine.clear(engine)
     }
-  }, [
-    temperature,
-    ballCollisions,
-    canvasRef,
-    onBinCountsUpdate,
-    onDropPositionChange,
-    canvasWidth,
-    canvasHeight,
-    scale,
-  ])
+  }, [canvasRef, onBinCountsUpdate, onDropPositionChange, canvasWidth, canvasHeight, scale])
+
+  // Update temperature ref when temperature changes
+  useEffect(() => {
+    temperatureRef.current = temperature
+  }, [temperature])
+
+  // Separate effect for ball collision settings that doesn't recreate the engine
+  useEffect(() => {
+    if (!engineRef.current) return
+
+    // Update collision filters for existing balls when ballCollisions changes
+    ballsRef.current.forEach((ball) => {
+      if (!ballCollisions) {
+        ball.collisionFilter = {
+          category: 0x0002,
+          mask: 0x0001,
+        }
+      } else {
+        // Reset to default collision filter
+        ball.collisionFilter = {
+          category: 0x0001,
+          mask: 0xffffffff,
+        }
+      }
+    })
+  }, [ballCollisions])
 
   return {
     engineRef,
