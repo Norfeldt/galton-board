@@ -5,50 +5,55 @@ export const createWalls = (
   canvasHeight: number = 600
 ): Matter.Body[] => {
   return [
-    // Bottom - positioned at canvas bottom
+    // Bottom - positioned at canvas bottom with brutal styling
     Matter.Bodies.rectangle(canvasWidth / 2, canvasHeight - 10, canvasWidth, 20, {
       isStatic: true,
-      render: { fillStyle: '#ffffff' },
+      render: {
+        fillStyle: '#000000', // Black walls for neubrutalism
+        strokeStyle: '#ffffff',
+        lineWidth: 3,
+      },
     }),
   ]
 }
 
 export const createSlider = (
   canvasWidth: number = 800,
-  canvasHeight: number = 600
+  canvasHeight: number = 600,
+  handleColor: string = '#FFFF00' // Brutal yellow as default
 ): {
   track: Matter.Body
   handle: Matter.Body
 } => {
   const scale = canvasWidth / 800
-  const boardMargin = 60 * scale // Same margin as used for pegs
-  const trackWidth = canvasWidth - 2 * boardMargin // Match the actual playable area
-  const trackHeight = 6 * scale
+  const boardMargin = 60 * scale
+  const trackWidth = canvasWidth - 2 * boardMargin
+  const trackHeight = 8 * scale // Thicker track
   const trackY = 40 * scale
   const trackX = canvasWidth / 2
 
-  const handleWidth = 44 * scale // Larger for better touch accessibility
-  const handleHeight = 28 * scale
-  const handleX = canvasWidth / 2 // Start in center
+  const handleWidth = 50 * scale // Larger handle for neubrutalism
+  const handleHeight = 32 * scale
+  const handleX = canvasWidth / 2
 
-  // Create track
+  // Create track with brutal styling
   const track = Matter.Bodies.rectangle(trackX, trackY, trackWidth, trackHeight, {
     isStatic: true,
     render: {
-      fillStyle: '#e2e8f0',
-      strokeStyle: '#cbd5e1',
-      lineWidth: 2 * scale,
+      fillStyle: '#ffffff', // White track
+      strokeStyle: '#000000', // Black border
+      lineWidth: 4 * scale, // Thick border
     },
     label: 'slider-track',
   })
 
-  // Create handle
+  // Create handle with brutal styling
   const handle = Matter.Bodies.rectangle(handleX, trackY, handleWidth, handleHeight, {
-    isStatic: true, // We'll control movement manually
+    isStatic: true,
     render: {
-      fillStyle: '#3b82f6',
-      strokeStyle: '#1e40af',
-      lineWidth: 3 * scale,
+      fillStyle: handleColor,
+      strokeStyle: '#000000', // Black border
+      lineWidth: 4 * scale, // Thick border
     },
     label: 'slider-handle',
   })
@@ -67,18 +72,29 @@ export const createPegs = (
   const pegs: Matter.Body[] = []
   const originalPositions: { x: number; y: number }[] = []
   const rowInfo: number[] = []
-  const scale = canvasWidth / 800 // Scale factor based on original 800px width
-  const pegRadius = 8 * scale
+  const scale = canvasWidth / 800
+  const pegRadius = 10 * scale // Larger pegs for neubrutalism
   const startY = 120 * scale
   const rowSpacing = 45 * scale
   const pegSpacing = 50 * scale
-  const extendMargin = 100 * scale // Extra space to extend pegs outside canvas
+  const extendMargin = 100 * scale
+
+  // Neubrutalism colors for pegs
+  const brutalPegColors = [
+    '#FF0000', // Red
+    '#FF8000', // Orange
+    '#FFFF00', // Yellow
+    '#80FF00', // Yellow-green
+    '#00FF00', // Green
+    '#00FF80', // Green-cyan
+    '#00FFFF', // Cyan
+    '#0080FF', // Blue
+    '#0000FF', // Deep blue
+  ]
 
   for (let row = 0; row < 7; row++) {
     const isEvenRow = row % 2 === 0
     const offsetX = isEvenRow ? 0 : pegSpacing / 2
-
-    // Extend the peg field beyond canvas boundaries
     const totalWidth = canvasWidth + 2 * extendMargin
     const pegsInRow = Math.floor(totalWidth / pegSpacing) + 2
 
@@ -86,16 +102,16 @@ export const createPegs = (
       const x = -extendMargin + offsetX + col * pegSpacing
       const y = startY + row * rowSpacing
 
-      const hue = 220 + row * 10 + col * 5
-      const saturation = 70 + row * 2
-      const lightness = 60 + col * 2
+      // Use brutal colors with alternating pattern
+      const colorIndex = (row + col) % brutalPegColors.length
+      const pegColor = brutalPegColors[colorIndex]
 
       const peg = Matter.Bodies.circle(x, y, pegRadius, {
         isStatic: true,
         render: {
-          fillStyle: `hsl(${hue}, ${saturation}%, ${lightness}%)`,
-          strokeStyle: '#6366f1',
-          lineWidth: 2 * scale,
+          fillStyle: pegColor,
+          strokeStyle: '#000000', // Black outline
+          lineWidth: 3 * scale, // Thick border
         },
       })
       pegs.push(peg)
@@ -113,20 +129,23 @@ export const createBins = (
 ): Matter.Body[] => {
   const bins: Matter.Body[] = []
   const numBins = 9
-  const binWidth = canvasWidth / numBins // Make bins fill entire width
+  const binWidth = canvasWidth / numBins
   const scale = canvasWidth / 800
-  const binHeight = 140 * scale // Scale the height
-  const binY = canvasHeight - binHeight / 2 - 10 // Position relative to canvas height
-  const startX = 0 // Start at the left edge
+  const binHeight = 140 * scale
+  const binY = canvasHeight - binHeight / 2 - 10
+  const startX = 0
 
-  // Create walls for 9 bins (10 walls total) spanning full width
+  // Create walls for 9 bins with brutal styling
   for (let i = 0; i <= numBins; i++) {
     const binX = startX + i * binWidth
-    const hue = 200 + i * 20
 
-    const wall = Matter.Bodies.rectangle(binX, binY, 3 * scale, binHeight, {
+    const wall = Matter.Bodies.rectangle(binX, binY, 5 * scale, binHeight, {
       isStatic: true,
-      render: { fillStyle: `hsl(${hue}, 60%, 65%)` },
+      render: {
+        fillStyle: '#000000', // Black walls
+        strokeStyle: '#000000', // Black outline
+        lineWidth: 2 * scale,
+      },
     })
     bins.push(wall)
   }
@@ -138,19 +157,34 @@ export const createBall = (
   dropX: number,
   randomness: boolean,
   ballCollisions: boolean,
-  scale: number = 1
+  scale: number = 1,
+  color?: string
 ): Matter.Body => {
-  const ballColors = ['#f59e0b', '#ef4444', '#10b981', '#3b82f6', '#8b5cf6', '#f97316', '#06b6d4']
-  const randomColor = ballColors[Math.floor(Math.random() * ballColors.length)]
+  // Neubrutalism ball colors - bright and bold
+  const brutalBallColors = [
+    '#FF0000', // Red
+    '#FF8000', // Orange
+    '#FFFF00', // Yellow
+    '#80FF00', // Yellow-green
+    '#00FF00', // Green
+    '#00FF80', // Green-cyan
+    '#00FFFF', // Cyan
+    '#0080FF', // Blue
+    '#8000FF', // Purple
+    '#FF0080', // Pink
+  ]
 
-  const ball = Matter.Bodies.circle(dropX, 50 * scale, 10 * scale, {
+  const ballColor = color || brutalBallColors[Math.floor(Math.random() * brutalBallColors.length)]
+
+  const ball = Matter.Bodies.circle(dropX, 50 * scale, 12 * scale, {
+    // Larger balls
     restitution: randomness ? 0.7 : 0.8,
     friction: randomness ? 0.01 : 0.005,
     frictionAir: randomness ? 0.01 : 0.005,
     render: {
-      fillStyle: randomColor,
-      strokeStyle: '#ffffff',
-      lineWidth: 2 * scale,
+      fillStyle: ballColor,
+      strokeStyle: '#000000', // Black outline
+      lineWidth: 3 * scale, // Thick border
     },
   })
 
@@ -162,4 +196,34 @@ export const createBall = (
   }
 
   return ball
+}
+
+// Helper function to get ball color based on drop position
+export const getBallColorFromPosition = (dropPosition: number, canvasWidth: number): string => {
+  const brutalBallColors = [
+    '#FF0000',
+    '#FF8000',
+    '#FFFF00',
+    '#80FF00',
+    '#00FF00',
+    '#00FF80',
+    '#00FFFF',
+    '#0080FF',
+    '#8000FF',
+    '#FF0080',
+  ]
+
+  const scale = canvasWidth / 800
+  const boardMargin = 60 * scale
+  const trackWidth = canvasWidth - 2 * boardMargin
+  const trackLeft = boardMargin
+
+  // Calculate normalized position (0 to 1) across the track
+  const normalizedPosition = Math.max(0, Math.min(1, (dropPosition - trackLeft) / trackWidth))
+
+  // Map to color index
+  const colorIndex = Math.floor(normalizedPosition * brutalBallColors.length)
+  const boundedIndex = Math.min(colorIndex, brutalBallColors.length - 1)
+
+  return brutalBallColors[boundedIndex]
 }

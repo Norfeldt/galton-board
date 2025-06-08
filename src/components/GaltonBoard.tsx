@@ -5,7 +5,7 @@ import { useGaltonPhysics } from '@/hooks/useGaltonPhysics'
 import { useResponsiveCanvas } from '@/hooks/useResponsiveCanvas'
 import { GaltonControls } from './GaltonControls'
 import { GaltonActions } from './GaltonActions'
-import { createBall } from '@/utils/matterBodies'
+import { createBall, getBallColorFromPosition } from '@/utils/matterBodies'
 
 const GaltonBoard: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -15,7 +15,7 @@ const GaltonBoard: React.FC = () => {
   const [temperature, setTemperature] = useState([0])
   const [randomness, setRandomness] = useState(true)
   const [dropPosition, setDropPosition] = useState(0) // Will be set to canvas center when canvas loads
-  const [ballCollisions, setBallCollisions] = useState(true)
+  const [ballCollisions, setBallCollisions] = useState(false)
   const [flashingBins, setFlashingBins] = useState<Set<number>>(new Set())
   const previousBinCountsRef = useRef<number[]>(new Array(9).fill(0))
   const pendingDropsRef = useRef<NodeJS.Timeout[]>([])
@@ -74,7 +74,8 @@ const GaltonBoard: React.FC = () => {
 
     // Use drop position directly since it's already in canvas coordinates
     const ballDropX = dropPosition + (randomness ? (Math.random() - 0.5) * 20 * scale : 0)
-    const ball = createBall(ballDropX, randomness, ballCollisions, scale)
+    const ballColor = getBallColorFromPosition(dropPosition, canvasWidth)
+    const ball = createBall(ballDropX, randomness, ballCollisions, scale, ballColor)
     ballsRef.current.push(ball)
     Matter.World.add(engineRef.current.world, ball)
     setBallCount((prev) => prev + 1)
@@ -83,7 +84,7 @@ const GaltonBoard: React.FC = () => {
       ball.position,
       `Randomness: ${randomness}`
     )
-  }, [engineRef, ballsRef, dropPosition, randomness, ballCollisions, ballCount, scale])
+  }, [engineRef, ballsRef, dropPosition, randomness, ballCollisions, ballCount, scale, canvasWidth])
 
   const dropMultipleBalls = useCallback(
     (count: number) => {
@@ -116,17 +117,26 @@ const GaltonBoard: React.FC = () => {
     console.log('Simulation reset!')
   }, [engineRef, ballsRef, canvasWidth])
 
+  // Neubrutalism color palette for bins
+  const brutalColors = [
+    '#FF0000', // Red
+    '#FF8000', // Orange
+    '#FFFF00', // Yellow
+    '#80FF00', // Yellow-green
+    '#00FF00', // Green
+    '#00FF80', // Green-cyan
+    '#00FFFF', // Cyan
+    '#0080FF', // Blue
+    '#0000FF', // Deep blue
+  ]
+
   return (
-    <div className="flex flex-col items-center gap-6 py-4 px-2 sm:py-8 sm:px-4 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 min-h-screen">
+    <div className="flex flex-col items-center gap-8 py-8 px-4 min-h-screen">
       {/* Title */}
-      <div className="text-center">
-        <h1 className="text-3xl sm:text-5xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent mb-4">
-          Galton Board
+      <div className="text-center bg-white brutal-border-thick brutal-shadow-xl p-6">
+        <h1 className="text-4xl sm:text-6xl font-black text-black uppercase tracking-wider">
+          GALTON BOARD
         </h1>
-        <p className="text-sm sm:text-lg text-slate-600 max-w-2xl px-4">
-          Watch colorful balls create a beautiful normal distribution as they cascade through the
-          pegs
-        </p>
       </div>
 
       {/* Action buttons */}
@@ -138,58 +148,37 @@ const GaltonBoard: React.FC = () => {
 
       {/* Canvas Container */}
       <div ref={containerRef} className="flex flex-col items-center relative w-full mx-auto">
-        {/* Physics-based slider is now rendered within the Matter.js canvas */}
-
         <canvas
           ref={canvasRef}
-          className="border-0 rounded-t-2xl shadow-2xl bg-white block"
+          className="brutal-border-thick brutal-shadow-xl bg-white block"
           width={canvasWidth}
           height={canvasHeight}
           style={{ maxWidth: '100%', height: 'auto' }}
         />
 
-        {/* Bin labels with beautiful styling - seamlessly connected */}
-        <div className="flex w-full shadow-2xl -mt-1" style={{ maxWidth: `${canvasWidth}px` }}>
+        {/* Bin labels with neubrutalism styling */}
+        <div
+          className="flex w-full brutal-border-thick brutal-shadow-xl -mt-1"
+          style={{ maxWidth: `${canvasWidth}px` }}>
           {binCounts.map((count, index) => {
-            const isFirst = index === 0
-            const isLast = index === binCounts.length - 1
-            const hue = 220 + index * 15
-            const intensity = 60
             const isFlashing = flashingBins.has(index)
+            const bgColor = brutalColors[index]
 
             return (
               <div
                 key={index}
-                className="flex-1 text-center font-bold text-white relative overflow-hidden transition-all duration-200"
+                className="flex-1 text-center font-black text-black relative overflow-hidden transition-all duration-200 border-r-4 border-black last:border-r-0"
                 style={{
-                  background: isFlashing
-                    ? `linear-gradient(to top, hsl(${hue}, 80%, ${
-                        intensity + 20
-                      }%), hsl(${hue}, 90%, ${intensity + 30}%))`
-                    : `linear-gradient(to top, hsl(${hue}, 60%, ${intensity}%), hsl(${hue}, 70%, ${
-                        intensity + 10
-                      }%))`,
-                  borderRight: isLast ? 'none' : '1px solid rgba(255,255,255,0.3)',
-                  minHeight: `${40 * scale}px`,
+                  backgroundColor: isFlashing ? '#FFFFFF' : bgColor,
+                  minHeight: `${50 * scale}px`,
                 }}>
-                {/* Background pattern */}
-                <div className="absolute inset-0 opacity-20">
-                  <div className="w-full h-full bg-gradient-to-br from-white/10 to-transparent"></div>
-                </div>
-
                 {/* Content */}
-                <div className="relative z-10 flex flex-col justify-center items-center h-full py-2">
-                  <div className="text-xs sm:text-lg font-extrabold drop-shadow-lg">{count}</div>
+                <div className="relative z-10 flex flex-col justify-center items-center h-full py-3">
+                  <div className="text-lg sm:text-2xl font-black text-black">{count}</div>
                 </div>
 
-                {/* Pinball-style flash effect */}
-                {isFlashing && (
-                  <div
-                    className="absolute inset-0 animate-ping opacity-75"
-                    style={{
-                      background: `radial-gradient(circle, hsl(${hue}, 100%, 85%) 0%, hsl(${hue}, 90%, 70%) 50%, transparent 100%)`,
-                    }}></div>
-                )}
+                {/* Flash effect */}
+                {isFlashing && <div className="absolute inset-0 bg-white animate-pulse"></div>}
               </div>
             )
           })}
@@ -197,44 +186,49 @@ const GaltonBoard: React.FC = () => {
 
         {/* Bar chart below bin labels */}
         <div
-          className="w-full bg-white/80 backdrop-blur-sm rounded-b-2xl shadow-2xl pt-4"
+          className="w-full bg-white brutal-border-thick brutal-shadow-xl pt-6"
           style={{ maxWidth: `${canvasWidth}px` }}>
           <div
-            className="flex items-end border-b border-slate-00"
-            style={{ height: `${80 * scale}px` }}>
+            className="flex items-end border-b-4 border-black"
+            style={{ height: `${120 * scale}px` }}>
             {binCounts.map((count, index) => {
-              const hue = 220 + index * 15
-              const intensity = 60
               const maxCount = Math.max(...binCounts, 1)
-              const height = (count / maxCount) * 80 * scale // Scale the max height
+              const height = (count / maxCount) * 100 * scale
+              const bgColor = brutalColors[index]
 
               return (
-                <div key={index} className="flex-1 flex flex-col items-center justify-end">
+                <div
+                  key={index}
+                  className="flex-1 flex flex-col items-center justify-end border-r-4 border-black last:border-r-0">
                   <div
-                    className="w-full transition-all duration-300 ease-out"
+                    className="w-full transition-all duration-300 ease-out brutal-border"
                     style={{
                       height: `${height}px`,
-                      background: `linear-gradient(to top, hsl(${hue}, 60%, ${intensity}%), hsl(${hue}, 70%, ${
-                        intensity + 10
-                      }%))`,
+                      backgroundColor: bgColor,
+                      marginBottom: '4px',
                     }}
                   />
                 </div>
               )
             })}
           </div>
+
           {/* Bin labels for chart */}
-          <div className="flex mt-2 pb-4">
+          <div className="flex mt-4 pb-4">
             {binCounts.map((_, index) => (
-              <div key={index} className="flex-1 text-center text-xs text-slate-500 font-medium">
+              <div
+                key={index}
+                className="flex-1 text-center text-lg font-black text-black uppercase">
                 {index}
               </div>
             ))}
           </div>
 
           {/* Total balls counter */}
-          <div className="text-center pb-4">
-            <p className="text-lg font-bold text-slate-700">Total Balls: {ballCount}</p>
+          <div className="text-center pb-6 mx-4 mb-4 p-4">
+            <p className="text-2xl font-black text-black uppercase tracking-wider">
+              TOTAL BALLS: {ballCount}
+            </p>
           </div>
         </div>
       </div>

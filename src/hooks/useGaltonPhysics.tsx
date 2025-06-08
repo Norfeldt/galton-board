@@ -1,6 +1,12 @@
 import { useEffect, useRef } from 'react'
 import Matter from 'matter-js'
-import { createWalls, createPegs, createBins, createSlider } from '@/utils/matterBodies'
+import {
+  createWalls,
+  createPegs,
+  createBins,
+  createSlider,
+  getBallColorFromPosition,
+} from '@/utils/matterBodies'
 
 interface UseGaltonPhysicsProps {
   canvasRef: React.RefObject<HTMLCanvasElement>
@@ -48,7 +54,13 @@ export const useGaltonPhysics = ({
 
     // Update handle position to match the dropPosition
     Matter.Body.setPosition(handle, { x: dropPosition, y: currentY })
-  }, [dropPosition])
+
+    // Update handle color based on position
+    const newColor = getBallColorFromPosition(dropPosition, canvasWidth)
+    if (handle.render) {
+      handle.render.fillStyle = newColor
+    }
+  }, [dropPosition, canvasWidth])
 
   useEffect(() => {
     if (!canvasRef.current) return
@@ -93,7 +105,8 @@ export const useGaltonPhysics = ({
     const walls = createWalls(canvasWidth, canvasHeight)
     const { pegs, originalPositions, rowInfo } = createPegs(canvasWidth, canvasHeight)
     const bins = createBins(canvasWidth, canvasHeight)
-    const { track, handle } = createSlider(canvasWidth, canvasHeight)
+    const initialColor = getBallColorFromPosition(dropPosition, canvasWidth)
+    const { track, handle } = createSlider(canvasWidth, canvasHeight, initialColor)
 
     pegsRef.current = pegs
     pegOriginalPositions.current = originalPositions
@@ -150,6 +163,13 @@ export const useGaltonPhysics = ({
       // Update drop position based on handle position (map to actual playable area)
       const normalizedPosition = (constrainedX - trackLeft) / trackWidth
       const dropPosition = trackLeft + normalizedPosition * trackWidth
+
+      // Update handle color based on new position
+      const newColor = getBallColorFromPosition(dropPosition, canvasWidth)
+      if (handle.render) {
+        handle.render.fillStyle = newColor
+      }
+
       onDropPositionChange(dropPosition)
     })
 
