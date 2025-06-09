@@ -1,5 +1,18 @@
 import Matter from 'matter-js'
 
+// Shared neubrutalism color palette
+export const brutalBallColors = [
+  '#FF0000', // Red
+  '#FF8000', // Orange
+  '#FFFF00', // Yellow
+  '#00FF00', // Green
+  '#00FFFF', // Cyan
+  '#4DA6FF', // Light Blue
+  '#B366FF', // Light Purple
+  '#FF0080', // Pink
+  '#FF00FF', // Magenta
+]
+
 export const createWalls = (
   canvasWidth: number = 800,
   canvasHeight: number = 600
@@ -79,18 +92,7 @@ export const createPegs = (
   const pegSpacing = 50 * scale
   const extendMargin = 100 * scale
 
-  // Neubrutalism colors for pegs
-  const brutalPegColors = [
-    '#FF0000', // Red
-    '#FF8000', // Orange
-    '#FFFF00', // Yellow
-    '#80FF00', // Yellow-green
-    '#00FF00', // Green
-    '#00FF80', // Green-cyan
-    '#00FFFF', // Cyan
-    '#0080FF', // Blue
-    '#0000FF', // Deep blue
-  ]
+  // Use shared neubrutalism color palette for pegs
 
   for (let row = 0; row < 7; row++) {
     const isEvenRow = row % 2 === 0
@@ -103,8 +105,8 @@ export const createPegs = (
       const y = startY + row * rowSpacing
 
       // Use brutal colors with alternating pattern
-      const colorIndex = (row + col) % brutalPegColors.length
-      const pegColor = brutalPegColors[colorIndex]
+      const colorIndex = (row + col) % brutalBallColors.length
+      const pegColor = brutalBallColors[colorIndex]
 
       const peg = Matter.Bodies.circle(x, y, pegRadius, {
         isStatic: true,
@@ -160,20 +162,6 @@ export const createBall = (
   scale: number = 1,
   color?: string
 ): Matter.Body => {
-  // Neubrutalism ball colors - bright and bold
-  const brutalBallColors = [
-    '#FF0000', // Red
-    '#FF8000', // Orange
-    '#FFFF00', // Yellow
-    '#80FF00', // Yellow-green
-    '#00FF00', // Green
-    '#00FF80', // Green-cyan
-    '#00FFFF', // Cyan
-    '#0080FF', // Blue
-    '#8000FF', // Purple
-    '#FF0080', // Pink
-  ]
-
   const ballColor = color || brutalBallColors[Math.floor(Math.random() * brutalBallColors.length)]
 
   const ball = Matter.Bodies.circle(dropX, 50 * scale, 12 * scale, {
@@ -200,19 +188,6 @@ export const createBall = (
 
 // Helper function to get ball color based on drop position
 export const getBallColorFromPosition = (dropPosition: number, canvasWidth: number): string => {
-  const brutalBallColors = [
-    '#FF0000',
-    '#FF8000',
-    '#FFFF00',
-    '#80FF00',
-    '#00FF00',
-    '#00FF80',
-    '#00FFFF',
-    '#0080FF',
-    '#8000FF',
-    '#FF0080',
-  ]
-
   const scale = canvasWidth / 800
   const boardMargin = 60 * scale
   const trackWidth = canvasWidth - 2 * boardMargin

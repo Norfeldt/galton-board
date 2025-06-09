@@ -5,7 +5,7 @@ import { useGaltonPhysics } from '@/hooks/useGaltonPhysics'
 import { useResponsiveCanvas } from '@/hooks/useResponsiveCanvas'
 import { GaltonControls } from './GaltonControls'
 import { GaltonActions } from './GaltonActions'
-import { createBall, getBallColorFromPosition } from '@/utils/matterBodies'
+import { createBall, getBallColorFromPosition, brutalBallColors } from '@/utils/matterBodies'
 
 const GaltonBoard: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -117,19 +117,6 @@ const GaltonBoard: React.FC = () => {
     console.log('Simulation reset!')
   }, [engineRef, ballsRef, canvasWidth])
 
-  // Neubrutalism color palette for bins
-  const brutalColors = [
-    '#FF0000', // Red
-    '#FF8000', // Orange
-    '#FFFF00', // Yellow
-    '#80FF00', // Yellow-green
-    '#00FF00', // Green
-    '#00FF80', // Green-cyan
-    '#00FFFF', // Cyan
-    '#0080FF', // Blue
-    '#0000FF', // Deep blue
-  ]
-
   return (
     <div className="flex flex-col items-center gap-8 py-8 px-4 min-h-screen">
       {/* Title */}
@@ -162,7 +149,7 @@ const GaltonBoard: React.FC = () => {
           style={{ maxWidth: `${canvasWidth}px` }}>
           {binCounts.map((count, index) => {
             const isFlashing = flashingBins.has(index)
-            const bgColor = brutalColors[index]
+            const bgColor = brutalBallColors[index]
 
             return (
               <div
@@ -194,7 +181,7 @@ const GaltonBoard: React.FC = () => {
             {binCounts.map((count, index) => {
               const maxCount = Math.max(...binCounts, 1)
               const height = (count / maxCount) * 100 * scale
-              const bgColor = brutalColors[index]
+              const bgColor = brutalBallColors[index]
 
               return (
                 <div
