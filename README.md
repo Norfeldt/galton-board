@@ -1,73 +1,108 @@
-# Welcome to your Lovable project
+# Galton Board: Visualizing Normal Distribution and LLM Temperature
 
-## Project info
+A interactive Galton board (also known as a bean machine or quincunx) that demonstrates the emergence of normal distribution and provides intuitive understanding of concepts like temperature in Large Language Models.
 
-**URL**: https://lovable.dev/projects/e4da93d4-2425-4f03-939a-3dd833ccd37d
+## What is a Galton Board?
 
-## How can I edit this code?
+A Galton board is a device invented by Sir Francis Galton that demonstrates the central limit theorem. It consists of a vertical board with pegs arranged in rows, where balls drop through and bounce randomly left or right at each peg, eventually collecting in bins at the bottom.
 
-There are several ways of editing your application.
+## Educational Purpose
 
-**Use Lovable**
+### Understanding Normal Distribution
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/e4da93d4-2425-4f03-939a-3dd833ccd37d) and start prompting.
+This interactive simulation helps build mental models around:
 
-Changes made via Lovable will be committed automatically to this repo.
+- **Central Limit Theorem**: How random processes naturally tend toward normal distribution
+- **Bell Curve Formation**: Visual demonstration of how individual random events aggregate into predictable patterns
+- **Statistical Variance**: How the spread of outcomes relates to the underlying randomness
 
-**Use your preferred IDE**
+### LLM Concepts Visualization
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+The Galton board serves as an excellent analogy for understanding Large Language Model behavior:
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+#### Temperature Parameter
+- **Low Temperature (0.1-0.3)**: Like a narrow Galton board where balls have less room to spread - outputs are more deterministic and focused
+- **Medium Temperature (0.7-1.0)**: Standard board width where balls distribute normally - balanced creativity and coherence
+- **High Temperature (1.5+)**: Wide board where balls spread dramatically - highly creative but potentially incoherent outputs
 
-Follow these steps:
+#### Token Selection Process
+Each peg represents a decision point where the model chooses the next token based on probability distributions, similar to how balls bounce left or right at each peg.
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+## Features
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+- Interactive controls to adjust "temperature" and see real-time effects
+- Histogram display showing distribution formation
+- Multiple ball drop modes (single, burst, continuous)
+- Statistical overlays showing mean, standard deviation, and confidence intervals
+- Side-by-side comparison of different temperature settings
 
-# Step 3: Install the necessary dependencies.
-npm i
+## Getting Started
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+### Prerequisites
+
+- Node.js (v18 or higher)
+- npm or yarn
+
+### Installation
+
+```bash
+# Clone the repository
+git clone <repository-url>
+cd galton-board
+
+# Install dependencies
+npm install
+
+# Start the development server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+### Usage
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+1. Open your browser to `http://localhost:5173`
+2. Use the temperature slider to adjust the randomness level
+3. Drop balls and observe the distribution patterns
+4. Compare different settings to understand the relationship between randomness and distribution
 
-**Use GitHub Codespaces**
+## Technology Stack
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+- **React** - UI framework
+- **TypeScript** - Type safety and better developer experience
+- **Vite** - Fast build tool and development server
+- **Tailwind CSS** - Utility-first CSS framework
+- **shadcn/ui** - Modern component library
 
-## What technologies are used for this project?
+## Educational Applications
 
-This project is built with:
+### For Statistics Students
+- Visualize the central limit theorem in action
+- Understand how individual random events create predictable patterns
+- Explore concepts of variance, standard deviation, and confidence intervals
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+### For AI/ML Students
+- Gain intuitive understanding of temperature in language models
+- Visualize how randomness affects output quality
+- Understand the trade-off between creativity and coherence
 
-## How can I deploy this project?
+### For General Audiences
+- Develop statistical intuition through interactive play
+- See how order emerges from chaos
+- Understand the mathematics behind everyday randomness
 
-Simply open [Lovable](https://lovable.dev/projects/e4da93d4-2425-4f03-939a-3dd833ccd37d) and click on Share -> Publish.
+## Contributing
 
-## Can I connect a custom domain to my Lovable project?
+Contributions are welcome! Please feel free to submit pull requests or open issues for:
+- Additional visualization features
+- Educational content improvements
+- Performance optimizations
+- Accessibility enhancements
 
-Yes, you can!
+## License
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+MIT License - see LICENSE file for details
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+## Acknowledgments
+
+- Sir Francis Galton for the original Galton board concept
+- The broader statistics and machine learning communities for inspiration
+- Open source contributors who made this project possible
