@@ -59,6 +59,19 @@ The Galton board simulation uses Matter.js physics engine with custom hooks:
 - Educational focus on visualizing LLM temperature concept through physics simulation
 - No testing infrastructure - consider adding tests for critical physics calculations
 
+## Maintenance
+
+### Keeping CLAUDE.md Updated
+This file should be kept in sync with project changes. Update this document when:
+- Adding new commands or scripts to package.json
+- Changing build configuration or development setup
+- Modifying the architecture or adding major features
+- Introducing new dependencies or tools
+- Changing coding conventions or patterns
+- Adding or modifying deployment processes
+
+Regular updates ensure Claude Code has accurate context for future development sessions.
+
 ## Git Commit Conventions
 
 Use conventional commits with emoji prefixes. Format: `<emoji> <type>: <description>`
