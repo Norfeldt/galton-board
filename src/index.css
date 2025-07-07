@@ -124,13 +124,19 @@
     margin: 0;
     padding: 0;
     overflow-x: hidden;
-    background: transparent;
+    background: transparent !important;
+    background-color: transparent !important;
   }
   
   html {
     margin: 0;
     padding: 0;
-    background: transparent;
+    background: transparent !important;
+    background-color: transparent !important;
+  }
+  
+  #root {
+    min-height: 100vh;
   }
 
   /* Enhanced Neon Panel Styling */
