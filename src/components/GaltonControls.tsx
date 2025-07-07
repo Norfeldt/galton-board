@@ -1,6 +1,6 @@
 import React from 'react'
 import { Label } from '@/components/ui/label'
-import { Slider } from '@/components/ui/slider'
+import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
 import { Card, CardHeader, CardTitle } from '@/components/ui/card'
 
@@ -22,67 +22,94 @@ export const GaltonControls: React.FC<GaltonControlsProps> = ({
   setBallCollisions,
 }) => {
   return (
-    <>
+    <Card className="w-full max-w-6xl">
       <CardHeader>
-        <CardTitle>Controls</CardTitle>
+        <CardTitle className="text-2xl font-black uppercase tracking-wider text-white">
+          Controls
+        </CardTitle>
       </CardHeader>
-      <Card className="w-full max-w-6xl bg-white p-6 sm:p-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
-          {/* Temperature Control */}
-          <div className="space-y-4 p-4 bg-brutal-yellow brutal-border">
-            <Label className="text-xl font-bold text-black uppercase tracking-wide">
-              Temperature: {temperature[0].toFixed(2)}
-            </Label>
-            <Slider
-              value={temperature}
-              onValueChange={setTemperature}
-              min={0}
-              max={1}
-              step={1 / 7 + 0.01}
-              className="w-full [&_[role=slider]]:bg-black [&_[role=slider]]:border-2 [&_[role=slider]]:border-black [&_[role=slider]]:w-6 [&_[role=slider]]:h-6 [&_[data-orientation=horizontal]]:bg-white [&_[data-orientation=horizontal]]:border-2 [&_[data-orientation=horizontal]]:border-black [&_[data-orientation=horizontal]]:h-4"
-            />
-            <p className="text-sm text-black font-bold leading-tight uppercase">
-              Higher temperature makes more pegs wiggle, creating more randomness
-            </p>
+      <div className="p-6 space-y-4">
+        {/* Temperature Control Tile */}
+        <div className="control-tile p-6 rounded-lg">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex-1">
+              <Label className="text-lg font-bold uppercase tracking-wide block text-cyan-400">
+                Temperature
+              </Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const newValue = Math.max(0, temperature[0] - 1/16)
+                  setTemperature([Number(newValue.toFixed(4))])
+                }}
+                disabled={temperature[0] <= 0}
+                className="w-12 h-12 p-0 bg-black/50 border border-pink-500/50 text-pink-400 hover:bg-pink-500/20 hover:border-pink-500 hover:text-pink-300 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-300 text-2xl font-bold"
+              >
+                -
+              </Button>
+              <div className="min-w-[6rem] text-center">
+                <span className="text-xl font-mono text-cyan-400 font-bold">
+                  {(Math.round(temperature[0] * 16) / 16).toFixed(4)}
+                </span>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const newValue = Math.min(1, temperature[0] + 1/16)
+                  setTemperature([Number(newValue.toFixed(4))])
+                }}
+                disabled={temperature[0] >= 1}
+                className="w-12 h-12 p-0 bg-black/50 border border-pink-500/50 text-pink-400 hover:bg-pink-500/20 hover:border-pink-500 hover:text-pink-300 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-300 text-2xl font-bold"
+              >
+                +
+              </Button>
+            </div>
           </div>
+          <p className="text-sm text-gray-300 font-medium leading-tight">
+            Higher temperature makes more pegs wiggle, creating more randomness
+          </p>
+        </div>
 
-          {/* Randomness Control */}
-          <div className="space-y-4 p-4 bg-brutal-green brutal-border">
-            <div className="flex items-center justify-between">
-              <Label className="text-xl font-bold text-black uppercase tracking-wide">
+        {/* Randomness Control Tile */}
+        <div className="control-tile p-6 rounded-lg">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex-1">
+              <Label className="text-lg font-bold uppercase tracking-wide block text-purple-400">
                 Randomness
               </Label>
-              <Switch
-                checked={randomness}
-                onCheckedChange={setRandomness}
-                className="data-[state=checked]:bg-black data-[state=unchecked]:bg-white border-2 border-black"
-              />
             </div>
-            <p className="text-sm text-black font-bold leading-tight uppercase">
-              {randomness
-                ? 'Balls will bounce randomly'
-                : 'Balls will follow the same predictable path'}
-            </p>
+            <div>
+              <Switch checked={randomness} onCheckedChange={setRandomness} />
+            </div>
           </div>
+          <p className="text-sm text-gray-300 font-medium leading-tight">
+            {randomness
+              ? 'Balls will bounce randomly'
+              : 'Balls will follow the same predictable path'}
+          </p>
+        </div>
 
-          {/* Ball Collisions Control */}
-          <div className="space-y-4 p-4 bg-brutal-blue brutal-border">
-            <div className="flex items-center justify-between">
-              <Label className="text-xl font-bold text-black uppercase tracking-wide">
+        {/* Ball Collisions Control Tile */}
+        <div className="control-tile p-6 rounded-lg">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex-1">
+              <Label className="text-lg font-bold uppercase tracking-wide block text-pink-400">
                 Ball Collisions
               </Label>
-              <Switch
-                checked={ballCollisions}
-                onCheckedChange={setBallCollisions}
-                className="data-[state=checked]:bg-black data-[state=unchecked]:bg-white border-2 border-black"
-              />
             </div>
-            <p className="text-sm text-black font-bold leading-tight uppercase">
-              {ballCollisions ? 'Balls can bounce off each other' : 'Balls pass through each other'}
-            </p>
+            <div>
+              <Switch checked={ballCollisions} onCheckedChange={setBallCollisions} />
+            </div>
           </div>
+          <p className="text-sm text-gray-300 font-medium leading-tight">
+            {ballCollisions ? 'Balls can bounce off each other' : 'Balls pass through each other'}
+          </p>
         </div>
-      </Card>
-    </>
+      </div>
+    </Card>
   )
 }
