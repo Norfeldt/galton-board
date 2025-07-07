@@ -8,6 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `npm run dev` - Start development server on port 8080 (configured in vite.config.ts)
 - `npm run build` - Build for production (outputs to dist/)
 - `npm run preview` - Preview production build locally
+- ⚠️ Don't run the dev script - ask me to start the dev server. Besides, I'm also using bun and not npm
 
 ### Code Quality
 - `npm run lint` - Run ESLint (TypeScript not in strict mode, unused vars warnings disabled)
@@ -58,6 +59,7 @@ The Galton board simulation uses Matter.js physics engine with custom hooks:
 - Development port is 8080 (not default 5173)
 - Educational focus on visualizing LLM temperature concept through physics simulation
 - No testing infrastructure - consider adding tests for critical physics calculations
+- **Performance Rule**: Use only CSS animations and transitions, NO JavaScript animations (to avoid breaking Matter.js physics performance)
 
 ## Maintenance
 
