@@ -453,27 +453,27 @@
 
   /* Mobile (default) - Portrait orientation */
   .synthwave-bg {
-    background-image: url('./backgrounds/bg-mobile.jpg');
+    background-image: url('/backgrounds/bg-mobile.jpg');
   }
 
   /* Tablet - Landscape orientation */
   @media (min-width: 768px) {
     .synthwave-bg {
-      background-image: url('./backgrounds/bg-tablet.jpg');
+      background-image: url('/backgrounds/bg-tablet.jpg');
     }
   }
 
   /* Desktop - Standard HD */
   @media (min-width: 1024px) {
     .synthwave-bg {
-      background-image: url('./backgrounds/bg-desktop.jpg');
+      background-image: url('/backgrounds/bg-desktop.jpg');
     }
   }
 
   /* Ultrawide monitors */
   @media (min-width: 2560px) {
     .synthwave-bg {
-      background-image: url('./backgrounds/bg-ultrawide.jpg');
+      background-image: url('/backgrounds/bg-ultrawide.jpg');
     }
   }
 
@@ -484,24 +484,24 @@
 
   /* Support for WebP with fallback */
   .webp .synthwave-bg {
-    background-image: url('./backgrounds/bg-mobile.webp');
+    background-image: url('/backgrounds/bg-mobile.webp');
   }
 
   @media (min-width: 768px) {
     .webp .synthwave-bg {
-      background-image: url('./backgrounds/bg-tablet.webp');
+      background-image: url('/backgrounds/bg-tablet.webp');
     }
   }
 
   @media (min-width: 1024px) {
     .webp .synthwave-bg {
-      background-image: url('./backgrounds/bg-desktop.webp');
+      background-image: url('/backgrounds/bg-desktop.webp');
     }
   }
 
   @media (min-width: 2560px) {
     .webp .synthwave-bg {
-      background-image: url('./backgrounds/bg-ultrawide.webp');
+      background-image: url('/backgrounds/bg-ultrawide.webp');
     }
   }
 
