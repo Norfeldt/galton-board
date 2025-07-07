@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useCallback } from 'react'
 import Matter from 'matter-js'
 import {
   createWalls,
@@ -47,7 +47,7 @@ export const useGaltonPhysics = ({
 
   // Effect to sync slider handle position with dropPosition state
   useEffect(() => {
-    if (!sliderHandleRef.current || dropPosition === 0) return
+    if (!sliderHandleRef.current) return
 
     const handle = sliderHandleRef.current
     const currentY = handle.position.y
@@ -70,18 +70,20 @@ export const useGaltonPhysics = ({
     engine.world.gravity.y = 1
     engineRef.current = engine
 
-    // Create renderer with responsive dimensions
+    // Create renderer with responsive dimensions and enhanced styling
     const render = Matter.Render.create({
       canvas: canvasRef.current,
       engine: engine,
       options: {
         width: canvasWidth,
         height: canvasHeight,
-        background: '#ffffff',
+        background: 'transparent',
         wireframes: false,
         showAngleIndicator: false,
         showVelocity: false,
         showDebug: false,
+        // Add CSS filter effects via canvas context
+        pixelRatio: window.devicePixelRatio || 1, // Better rendering on high DPI screens
       },
     })
     renderRef.current = render
@@ -105,8 +107,14 @@ export const useGaltonPhysics = ({
     const walls = createWalls(canvasWidth, canvasHeight)
     const { pegs, originalPositions, rowInfo } = createPegs(canvasWidth, canvasHeight)
     const bins = createBins(canvasWidth, canvasHeight)
-    const initialColor = getBallColorFromPosition(dropPosition, canvasWidth)
-    const { track, handle } = createSlider(canvasWidth, canvasHeight, initialColor)
+    const initialDropPosition = dropPosition || canvasWidth / 2
+    const initialColor = getBallColorFromPosition(initialDropPosition, canvasWidth)
+    const { track, handle } = createSlider(
+      canvasWidth,
+      canvasHeight,
+      initialColor,
+      initialDropPosition
+    )
 
     pegsRef.current = pegs
     pegOriginalPositions.current = originalPositions
@@ -114,13 +122,101 @@ export const useGaltonPhysics = ({
     sliderTrackRef.current = track
     sliderHandleRef.current = handle
 
-    // Add all bodies to world
-    Matter.World.add(engine.world, [...walls, ...pegs, ...bins, track, handle, mouseConstraint])
+    // Debug: Check the actual row distribution
+    const maxActualRow = Math.max(...rowInfo)
+    const minActualRow = Math.min(...rowInfo)
+    console.log(`Actual peg rows: ${minActualRow} to ${maxActualRow} (total: ${maxActualRow - minActualRow + 1} rows)`)
+    console.log(`Total pegs created: ${pegs.length}`)
+    
+    // Count pegs per row
+    const rowCounts = rowInfo.reduce((acc, row) => {
+      acc[row] = (acc[row] || 0) + 1
+      return acc
+    }, {} as Record<number, number>)
+    console.log('Pegs per row:', rowCounts)
+
+    // Add all bodies to world (order matters for rendering)
+    // Add track first, then other bodies, then handle last so it renders on top
+    Matter.World.add(engine.world, [track, ...walls, ...pegs, ...bins, mouseConstraint, handle])
 
     // Start the engine and renderer
     const runner = Matter.Runner.create()
     Matter.Runner.run(runner, engine)
     Matter.Render.run(render)
+
+    // Custom rendering for gradient slider track
+    Matter.Events.on(render, 'afterRender', () => {
+      const context = render.canvas.getContext('2d')
+      if (!context || !sliderTrackRef.current) return
+
+      const track = sliderTrackRef.current
+      const trackBounds = track.bounds
+      
+      // Create rainbow gradient
+      const gradient = context.createLinearGradient(
+        trackBounds.min.x,
+        trackBounds.min.y,
+        trackBounds.max.x,
+        trackBounds.min.y
+      )
+      
+      // Add synthwave colors to gradient
+      const colors = [
+        '#FF0080', // Electric Hot Pink
+        '#9932FF', // Electric Purple
+        '#00BFFF', // Electric Blue
+        '#00FFFF', // Electric Cyan
+        '#FF4500', // Electric Orange
+        '#FFD700', // Electric Gold
+        '#FF1493', // Deep Pink
+        '#DA70D6', // Electric Orchid
+        '#8A2BE2', // Electric Violet
+      ]
+      
+      colors.forEach((color, index) => {
+        gradient.addColorStop(index / (colors.length - 1), color)
+      })
+      
+      // Draw gradient track
+      context.save()
+      context.fillStyle = gradient
+      context.beginPath()
+      context.roundRect(
+        trackBounds.min.x,
+        trackBounds.min.y,
+        trackBounds.max.x - trackBounds.min.x,
+        trackBounds.max.y - trackBounds.min.y,
+        4 * scale
+      )
+      context.fill()
+      context.restore()
+      
+      // Redraw handle on top with enhanced styling
+      if (sliderHandleRef.current) {
+        const handle = sliderHandleRef.current
+        const handleBounds = handle.bounds
+        
+        context.save()
+        // Add glow effect
+        context.shadowColor = handle.render.fillStyle
+        context.shadowBlur = 15 * scale
+        context.shadowOffsetX = 0
+        context.shadowOffsetY = 0
+        
+        // Draw handle without border
+        context.fillStyle = handle.render.fillStyle
+        context.beginPath()
+        context.roundRect(
+          handleBounds.min.x,
+          handleBounds.min.y,
+          handleBounds.max.x - handleBounds.min.x,
+          handleBounds.max.y - handleBounds.min.y,
+          8 * scale
+        )
+        context.fill()
+        context.restore()
+      }
+    })
 
     // Handle slider dragging
     Matter.Events.on(mouseConstraint, 'mousedown', (event) => {
@@ -181,8 +277,15 @@ export const useGaltonPhysics = ({
     const animate = () => {
       const currentTemp = temperatureRef.current
       const time = Date.now() * 0.005
-      const totalRows = 7 // Total number of peg rows
-      const activeRows = Math.floor(currentTemp * 7) // Temperature 0.0-0.14 = 0 rows, 0.14-0.28 = 1 row, etc.
+      const totalRows = 16 // Total number of peg rows
+      const actualMaxRow = Math.max(...pegRowInfo.current)
+      const actualTotalRows = actualMaxRow + 1 // Convert from 0-indexed to count
+      const activeRows = Math.floor(currentTemp * 16) // Temperature affects bottom rows first (always use 16 for consistency)
+
+      // Debug logging to understand the threshold behavior
+      if (currentTemp >= 0.24 && currentTemp <= 0.26) {
+        console.log(`Temperature: ${currentTemp.toFixed(4)}, activeRows: ${activeRows}, actualTotalRows: ${actualTotalRows}, currentTemp * actualTotalRows: ${(currentTemp * actualTotalRows).toFixed(4)}`)
+      }
 
       pegsRef.current.forEach((peg, index) => {
         const originalPos = pegOriginalPositions.current[index]
@@ -191,7 +294,7 @@ export const useGaltonPhysics = ({
         const pegRow = pegRowInfo.current[index]
 
         // Check if this row should be active (counting from bottom)
-        const rowFromBottom = totalRows - 1 - pegRow
+        const rowFromBottom = actualTotalRows - 1 - pegRow
         const shouldWiggle = rowFromBottom < activeRows
 
         let wiggleAmount = 0
@@ -212,6 +315,9 @@ export const useGaltonPhysics = ({
     }
 
     animate()
+
+    // Collision detection for bin counting only
+    // Note: Removed peg touching visual effects since they don't work well with the current setup
 
     // Collision detection for counting balls in bins (with responsive dimensions)
     Matter.Events.on(engine, 'afterUpdate', () => {
@@ -269,11 +375,18 @@ export const useGaltonPhysics = ({
     })
   }, [ballCollisions])
 
+  const resetPegs = useCallback(() => {
+    // Since we removed custom properties for simplicity,
+    // pegs already maintain their original colors
+    // This function is kept for compatibility but does nothing
+  }, [scale])
+
   return {
     engineRef,
     ballsRef,
     pegsRef,
     pegOriginalPositions,
     sliderHandleRef,
+    resetPegs,
   }
 }
