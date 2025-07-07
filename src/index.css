@@ -6,45 +6,60 @@
 
 @layer base {
   :root {
-    /* Neubrutalism color palette with high contrast for a11y */
-    --background: 0 0% 100%; /* Pure white */
-    --foreground: 0 0% 0%; /* Pure black */
+    /* Synthwave color palette - Dark with neon accents */
+    --background: 250 35% 7%; /* Dark purple background */
+    --foreground: 24 10% 90%; /* Soft white */
 
-    --card: 0 0% 100%; /* Pure white */
-    --card-foreground: 0 0% 0%; /* Pure black */
+    --card: 249 35% 10%; /* Darker purple for cards */
+    --card-foreground: 24 10% 90%; /* Soft white */
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 0%;
+    --popover: 249 35% 10%;
+    --popover-foreground: 24 10% 90%;
 
-    /* Bold primary colors for neubrutalism */
-    --primary: 0 0% 0%; /* Pure black */
-    --primary-foreground: 0 0% 100%; /* Pure white */
+    /* Synthwave primary colors */
+    --primary: 338 84% 52%; /* Hot pink */
+    --primary-foreground: 24 10% 90%; /* Soft white */
 
-    --secondary: 45 100% 50%; /* Bright yellow */
-    --secondary-foreground: 0 0% 0%; /* Black text on yellow */
+    --secondary: 270 50% 60%; /* Electric purple */
+    --secondary-foreground: 24 10% 90%; /* Soft white */
 
-    --muted: 0 0% 90%; /* Light gray */
-    --muted-foreground: 0 0% 0%; /* Black */
+    --muted: 249 20% 20%; /* Muted dark purple */
+    --muted-foreground: 24 10% 70%; /* Muted white */
 
-    --accent: 120 100% 40%; /* Bright green */
-    --accent-foreground: 0 0% 0%; /* Black text on green */
+    --accent: 195 100% 50%; /* Cyan */
+    --accent-foreground: 250 35% 7%; /* Dark purple text */
 
-    --destructive: 0 100% 50%; /* Pure red */
-    --destructive-foreground: 0 0% 100%; /* White text on red */
+    --destructive: 348 83% 47%; /* Neon red */
+    --destructive-foreground: 24 10% 90%; /* Soft white */
 
-    --border: 0 0% 0%; /* Black borders */
-    --input: 0 0% 100%; /* White inputs */
-    --ring: 0 0% 0%; /* Black focus rings */
+    --border: 270 50% 40%; /* Purple borders */
+    --input: 249 35% 15%; /* Dark purple inputs */
+    --ring: 338 84% 52%; /* Hot pink focus rings */
 
-    --radius: 0rem; /* Sharp corners for neubrutalism */
+    --radius: 0.5rem; /* Rounded corners for synthwave */
 
-    /* Neubrutalism specific colors */
-    --brutal-yellow: 45 100% 50%;
-    --brutal-blue: 210 100% 50%;
-    --brutal-red: 0 100% 50%;
-    --brutal-green: 120 100% 40%;
-    --brutal-purple: 280 100% 50%;
-    --brutal-orange: 30 100% 50%;
+    /* Enhanced Neon Colors for Mockup Match */
+    --neon-blue: 195 100% 50%; /* #00f0ff */
+    --neon-orange: 30 100% 50%; /* #ffa500 */
+    --neon-pink: 300 100% 50%; /* #ff00ff */
+    --neon-purple: 270 100% 37%; /* #bf00ff */
+    --neon-cyan: 180 100% 50%; /* #00ffff */
+    --neon-white: 0 0% 100%; /* #ffffff */
+    
+    /* Synthwave specific colors */
+    --synth-pink: 338 84% 52%;
+    --synth-purple: 270 50% 60%;
+    --synth-blue: 217 100% 61%;
+    --synth-cyan: 195 100% 50%;
+    --synth-magenta: 328 100% 54%;
+    --synth-yellow: 50 100% 67%;
+    --synth-dark: 250 35% 7%;
+    --synth-darker: 249 35% 5%;
+
+    /* Additional synthwave colors */
+    --synth-orange: 12 100% 50%;
+    --synth-light-purple: 270 100% 75%;
+    --synth-deep-purple: 272 100% 37%;
 
     --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 0 0% 0%;
@@ -106,51 +121,393 @@
     @apply bg-background text-foreground;
     font-family: 'JetBrains Mono', monospace;
     font-weight: 500;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+  }
+  
+  html {
+    margin: 0;
+    padding: 0;
   }
 
-  /* Neubrutalism utility classes */
-  .brutal-shadow {
-    box-shadow: 4px 4px 0px 0px #000000;
+  /* Enhanced Neon Panel Styling */
+  .neon-panel {
+    border: 2px solid hsl(var(--neon-blue));
+    box-shadow: 0 0 20px hsl(var(--neon-blue)), inset 0 0 10px rgba(0, 0, 0, 0.8);
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(10px);
   }
 
-  .brutal-shadow-lg {
-    box-shadow: 8px 8px 0px 0px #000000;
+  .neon-panel-cyan {
+    border: 2px solid hsl(var(--neon-cyan));
+    box-shadow: 0 0 20px hsl(var(--neon-cyan)), inset 0 0 10px rgba(0, 0, 0, 0.8);
+    background: rgba(0, 0, 0, 0.85);
   }
 
-  .brutal-shadow-xl {
-    box-shadow: 12px 12px 0px 0px #000000;
+  .neon-panel-pink {
+    border: 2px solid hsl(var(--neon-pink));
+    box-shadow: 0 0 20px hsl(var(--neon-pink)), inset 0 0 10px rgba(0, 0, 0, 0.8);
+    background: rgba(0, 0, 0, 0.85);
   }
 
-  .brutal-border {
-    border: 3px solid #000000;
+  /* Enhanced Synthwave utility classes */
+  .synth-glow {
+    box-shadow: 0 0 20px rgba(255, 0, 110, 0.6), 0 0 40px rgba(255, 0, 110, 0.4),
+      0 0 60px rgba(255, 0, 110, 0.2);
   }
 
-  .brutal-border-thick {
-    border: 5px solid #000000;
+  .synth-glow-lg {
+    box-shadow: 0 0 30px rgba(255, 0, 110, 0.8), 0 0 60px rgba(255, 0, 110, 0.6),
+      0 0 90px rgba(255, 0, 110, 0.3);
   }
 
-  /* Brutal color backgrounds */
-  .bg-brutal-yellow {
-    background-color: hsl(var(--brutal-yellow));
+  .synth-glow-xl {
+    box-shadow: 0 0 40px rgba(255, 0, 110, 0.9), 0 0 80px rgba(255, 0, 110, 0.7),
+      0 0 120px rgba(255, 0, 110, 0.4);
   }
 
-  .bg-brutal-green {
-    background-color: hsl(var(--brutal-green));
+  .synth-glow-cyan {
+    box-shadow: 0 0 20px rgba(0, 245, 255, 0.6), 0 0 40px rgba(0, 245, 255, 0.4),
+      0 0 60px rgba(0, 245, 255, 0.2);
   }
 
-  .bg-brutal-blue {
-    background-color: hsl(var(--brutal-blue));
+  .synth-glow-blue {
+    box-shadow: 0 0 20px rgba(58, 134, 255, 0.6), 0 0 40px rgba(58, 134, 255, 0.4),
+      0 0 60px rgba(58, 134, 255, 0.2);
   }
 
-  .bg-brutal-red {
-    background-color: hsl(var(--brutal-red));
+  .synth-border {
+    border: 2px solid;
+    border-image: linear-gradient(45deg, hsl(var(--synth-pink)), hsl(var(--synth-blue))) 1;
   }
 
-  .bg-brutal-purple {
-    background-color: hsl(var(--brutal-purple));
+  .synth-border-glow {
+    border: 3px solid hsl(var(--synth-cyan));
+    box-shadow: 0 0 20px rgba(0, 245, 255, 0.8), 0 0 40px rgba(0, 245, 255, 0.4),
+      inset 0 0 20px rgba(0, 245, 255, 0.1);
   }
 
-  .bg-brutal-orange {
-    background-color: hsl(var(--brutal-orange));
+  /* Enhanced synthwave gradients */
+  .bg-synth-gradient {
+    background: linear-gradient(135deg, #2d1b69 0%, #1a0b2e 50%, #0f051a 100%);
+    position: relative;
   }
+
+  .bg-synth-pink {
+    background-color: hsl(var(--synth-pink));
+  }
+
+  .bg-synth-purple {
+    background-color: hsl(var(--synth-purple));
+  }
+
+  .bg-synth-blue {
+    background-color: hsl(var(--synth-blue));
+  }
+
+  .bg-synth-cyan {
+    background-color: hsl(var(--synth-cyan));
+  }
+
+  .bg-synth-magenta {
+    background-color: hsl(var(--synth-magenta));
+  }
+
+  /* Enhanced glassmorphism effect */
+  .glass {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .glass-strong {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(30px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+  }
+
+  /* Enhanced neon text effect */
+  .neon-text {
+    color: hsl(var(--neon-blue));
+    text-shadow: 0 0 5px hsl(var(--neon-blue)), 0 0 10px hsl(var(--neon-blue)), 0 0 15px hsl(var(--neon-blue));
+    font-weight: bold;
+  }
+
+  .neon-text-cyan {
+    color: hsl(var(--neon-cyan));
+    text-shadow: 0 0 5px hsl(var(--neon-cyan)), 0 0 10px hsl(var(--neon-cyan)), 0 0 15px hsl(var(--neon-cyan));
+    font-weight: bold;
+  }
+
+  .neon-text-pink {
+    color: hsl(var(--neon-pink));
+    text-shadow: 0 0 5px hsl(var(--neon-pink)), 0 0 10px hsl(var(--neon-pink)), 0 0 15px hsl(var(--neon-pink));
+    font-weight: bold;
+  }
+
+  .text-neon-glow {
+    text-shadow: 0 0 5px currentColor, 0 0 10px currentColor, 0 0 15px currentColor,
+      0 0 20px currentColor;
+  }
+
+  .text-neon-glow-strong {
+    text-shadow: 0 0 5px currentColor, 0 0 10px currentColor, 0 0 15px currentColor,
+      0 0 20px currentColor, 0 0 35px currentColor;
+  }
+
+  /* Gradient text effect */
+  .text-gradient-cyan {
+    background: linear-gradient(135deg, #00f5ff 0%, #ffffff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Enhanced animations */
+  @keyframes neon-pulse {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.6;
+    }
+  }
+
+  .animate-neon-pulse {
+    animation: neon-pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes glow-pulse {
+    0%,
+    100% {
+      box-shadow: 0 0 20px rgba(0, 245, 255, 0.6), 0 0 40px rgba(0, 245, 255, 0.4),
+        0 0 60px rgba(0, 245, 255, 0.2);
+    }
+    50% {
+      box-shadow: 0 0 30px rgba(0, 245, 255, 0.8), 0 0 60px rgba(0, 245, 255, 0.6),
+        0 0 90px rgba(0, 245, 255, 0.3);
+    }
+  }
+
+  .animate-glow-pulse {
+    animation: glow-pulse 3s ease-in-out infinite;
+  }
+
+  /* Enhanced perspective grid pattern */
+  .synth-grid {
+    background-image: 
+      /* Horizontal lines */ linear-gradient(
+        rgba(255, 0, 110, 0.3) 1px,
+        transparent 1px
+      ),
+      /* Vertical lines */ linear-gradient(90deg, rgba(255, 0, 110, 0.3) 1px, transparent 1px);
+    background-size: 50px 50px;
+    position: relative;
+  }
+
+  /* Removed pink overlay - keeping grid lines only */
+  /* .synth-grid::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+      linear-gradient(
+        to bottom,
+        transparent 0%,
+        rgba(255, 0, 110, 0.1) 30%,
+        rgba(255, 0, 110, 0.2) 100%
+      ),
+      radial-gradient(ellipse at center bottom, rgba(255, 0, 110, 0.1) 0%, transparent 70%);
+    transform: perspective(1000px) rotateX(60deg);
+    transform-origin: bottom;
+    pointer-events: none;
+  } */
+
+  /* Canvas dark theme with enhanced neon background */
+  .canvas-dark {
+    background: radial-gradient(
+      ellipse at center,
+      rgba(10, 3, 20, 0.95) 0%,
+      rgba(5, 1, 10, 0.99) 100%
+    );
+    box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.8);
+  }
+
+  .canvas-neon-bg {
+    background: radial-gradient(
+      ellipse at center,
+      rgba(0, 15, 47, 0.95) 0%,
+      rgba(0, 0, 0, 0.99) 100%
+    );
+    box-shadow: inset 0 0 100px rgba(0, 240, 255, 0.1);
+  }
+
+  /* Grid background for histogram */
+  .histogram-grid {
+    background-image: 
+      linear-gradient(rgba(0, 240, 255, 0.1) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 240, 255, 0.1) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+
+  /* Enhanced button hover effects */
+  .hover\\:text-neon-glow:hover {
+    text-shadow: 0 0 8px currentColor, 0 0 16px currentColor, 0 0 24px currentColor;
+  }
+
+  /* Enhanced switch glow */
+  .neon-switch-glow {
+    box-shadow: 0 0 10px hsl(var(--neon-pink)), 0 0 20px hsl(var(--neon-pink)), 0 0 30px hsl(var(--neon-pink));
+  }
+
+  /* Modern neon card shadows */
+  .shadow-neon-card {
+    box-shadow: 
+      0 0 40px rgba(0, 240, 255, 0.15),
+      0 4px 24px rgba(0, 0, 0, 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.3);
+  }
+
+  /* Tile card styling */
+  .tile-card {
+    position: relative;
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.8) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .tile-card::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    background: linear-gradient(45deg, transparent, rgba(0, 240, 255, 0.3), transparent);
+    border-radius: inherit;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+  }
+
+  .tile-card:hover::before {
+    opacity: 1;
+  }
+
+  .tile-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 
+      0 8px 32px rgba(0, 240, 255, 0.2),
+      0 4px 16px rgba(0, 0, 0, 0.5);
+  }
+
+  /* Control tile variants */
+  .control-tile {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(16px);
+    transition: all 0.3s ease;
+  }
+
+  .control-tile::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      135deg,
+      transparent 40%,
+      rgba(255, 255, 255, 0.05) 50%,
+      transparent 60%
+    );
+    transform: translateX(-100%);
+    transition: transform 0.6s ease;
+  }
+
+  .control-tile:hover::after {
+    transform: translateX(100%);
+  }
+
+  .control-tile:hover {
+    border-color: rgba(255, 255, 255, 0.3);
+    background: rgba(0, 0, 0, 0.7);
+  }
+
+  /* Responsive synthwave background */
+  .synthwave-bg {
+    position: relative;
+    background-color: #0a0a0a;
+    background-position: center center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    width: 100%;
+    min-height: 100vh;
+  }
+
+  /* Mobile (default) - Portrait orientation */
+  .synthwave-bg {
+    background-image: url('./backgrounds/bg-mobile.jpg');
+  }
+
+  /* Tablet - Landscape orientation */
+  @media (min-width: 768px) {
+    .synthwave-bg {
+      background-image: url('./backgrounds/bg-tablet.jpg');
+    }
+  }
+
+  /* Desktop - Standard HD */
+  @media (min-width: 1024px) {
+    .synthwave-bg {
+      background-image: url('./backgrounds/bg-desktop.jpg');
+    }
+  }
+
+  /* Ultrawide monitors */
+  @media (min-width: 2560px) {
+    .synthwave-bg {
+      background-image: url('./backgrounds/bg-ultrawide.jpg');
+    }
+  }
+
+  /* Fallback for development - use original image */
+  .synthwave-bg-fallback {
+    background-image: url('./synthwave-horizon-bg-ultrawide.png.png');
+  }
+
+  /* Support for WebP with fallback */
+  .webp .synthwave-bg {
+    background-image: url('./backgrounds/bg-mobile.webp');
+  }
+
+  @media (min-width: 768px) {
+    .webp .synthwave-bg {
+      background-image: url('./backgrounds/bg-tablet.webp');
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .webp .synthwave-bg {
+      background-image: url('./backgrounds/bg-desktop.webp');
+    }
+  }
+
+  @media (min-width: 2560px) {
+    .webp .synthwave-bg {
+      background-image: url('./backgrounds/bg-ultrawide.webp');
+    }
+  }
+
+  /* Ensure synth-grid works properly on top */
+  .synthwave-bg.synth-grid {
+    position: relative;
+  }
+
 }

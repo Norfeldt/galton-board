@@ -66,14 +66,29 @@ export default {
           border: 'hsl(var(--sidebar-border))',
           ring: 'hsl(var(--sidebar-ring))',
         },
-        // Neubrutalism specific colors
-        brutal: {
-          yellow: 'hsl(var(--brutal-yellow))',
-          blue: 'hsl(var(--brutal-blue))',
-          red: 'hsl(var(--brutal-red))',
-          green: 'hsl(var(--brutal-green))',
-          purple: 'hsl(var(--brutal-purple))',
-          orange: 'hsl(var(--brutal-orange))',
+        // Enhanced Neon Colors for Mockup Match
+        neon: {
+          blue: 'hsl(var(--neon-blue))',
+          orange: 'hsl(var(--neon-orange))',
+          pink: 'hsl(var(--neon-pink))',
+          purple: 'hsl(var(--neon-purple))',
+          cyan: 'hsl(var(--neon-cyan))',
+          white: 'hsl(var(--neon-white))',
+        },
+        // Synthwave specific colors
+        synth: {
+          pink: 'hsl(var(--synth-pink))',
+          purple: 'hsl(var(--synth-purple))',
+          blue: 'hsl(var(--synth-blue))',
+          cyan: 'hsl(var(--synth-cyan))',
+          magenta: 'hsl(var(--synth-magenta))',
+          yellow: 'hsl(var(--synth-yellow))',
+          orange: 'hsl(var(--synth-orange))',
+          'light-purple': 'hsl(var(--synth-light-purple))',
+          'deep-purple': 'hsl(var(--synth-deep-purple))',
+          dark: 'hsl(var(--synth-dark))',
+          darker: 'hsl(var(--synth-darker))',
+          'glow-blue': '#00329c',
         },
       },
       borderRadius: {
@@ -105,5 +120,6 @@ export default {
       },
     },
   },
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   plugins: [require('tailwindcss-animate')],
 } satisfies Config
