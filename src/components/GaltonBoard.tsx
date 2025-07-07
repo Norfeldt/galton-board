@@ -5,7 +5,8 @@ import { useGaltonPhysics } from '@/hooks/useGaltonPhysics'
 import { useResponsiveCanvas } from '@/hooks/useResponsiveCanvas'
 import { GaltonControls } from './GaltonControls'
 import { GaltonActions } from './GaltonActions'
-import { createBall, getBallColorFromPosition, brutalBallColors } from '@/utils/matterBodies'
+import { createBall, getBallColorFromPosition, synthBallColors } from '@/utils/matterBodies'
+import GaltonTitle from './GaltonTitle'
 
 const GaltonBoard: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -14,7 +15,7 @@ const GaltonBoard: React.FC = () => {
   const [binCounts, setBinCounts] = useState<number[]>(new Array(9).fill(0))
   const [temperature, setTemperature] = useState([0])
   const [randomness, setRandomness] = useState(true)
-  const [dropPosition, setDropPosition] = useState(0) // Will be set to canvas center when canvas loads
+  const [dropPosition, setDropPosition] = useState(400) // Default center position, will be updated when canvas loads
   const [ballCollisions, setBallCollisions] = useState(false)
   const [flashingBins, setFlashingBins] = useState<Set<number>>(new Set())
   const previousBinCountsRef = useRef<number[]>(new Array(9).fill(0))
@@ -29,10 +30,10 @@ const GaltonBoard: React.FC = () => {
 
   // Set initial drop position to canvas center when canvas dimensions are available
   React.useEffect(() => {
-    if (canvasWidth > 0 && dropPosition === 0) {
+    if (canvasWidth > 0) {
       setDropPosition(canvasWidth / 2)
     }
-  }, [canvasWidth, dropPosition])
+  }, [canvasWidth])
 
   const handleBinCountsUpdate = useCallback((counts: number[]) => {
     const previousCounts = previousBinCountsRef.current
@@ -57,7 +58,7 @@ const GaltonBoard: React.FC = () => {
     setBinCounts(counts)
   }, [])
 
-  const { engineRef, ballsRef } = useGaltonPhysics({
+  const { engineRef, ballsRef, resetPegs } = useGaltonPhysics({
     canvasRef,
     temperature: temperature[0],
     ballCollisions,
@@ -92,8 +93,11 @@ const GaltonBoard: React.FC = () => {
       pendingDropsRef.current.forEach((timeoutId) => clearTimeout(timeoutId))
       pendingDropsRef.current = []
 
+      // Use 100ms delay (2x speed) for 500 balls, 200ms for others
+      const delay = count === 500 ? 100 : 200
+
       for (let i = 0; i < count; i++) {
-        const timeoutId = setTimeout(() => dropBall(), i * 200)
+        const timeoutId = setTimeout(() => dropBall(), i * delay)
         pendingDropsRef.current.push(timeoutId)
       }
     },
@@ -114,121 +118,199 @@ const GaltonBoard: React.FC = () => {
     setBallCount(0)
     setBinCounts(new Array(9).fill(0))
     setDropPosition(canvasWidth / 2) // Reset slider to center of canvas
+
+    // Reset peg colors back to original
+    resetPegs()
+
     console.log('Simulation reset!')
-  }, [engineRef, ballsRef, canvasWidth])
+  }, [engineRef, ballsRef, canvasWidth, resetPegs])
 
   return (
-    <div className="flex flex-col items-center gap-8 py-8 px-4 min-h-screen">
-      {/* Title */}
-      <div className="text-center bg-white brutal-border-thick brutal-shadow-xl p-6">
-        <h1 className="text-4xl sm:text-6xl font-black text-black uppercase tracking-wider">
-          GALTON BOARD
-        </h1>
-      </div>
+    <div className="flex flex-col gap-8 py-8 min-h-screen">
+      <GaltonTitle />
 
-      {/* Action buttons */}
-      <GaltonActions
-        onDropBall={dropBall}
-        onDropMultipleBalls={dropMultipleBalls}
-        onReset={resetSimulation}
-      />
+      {/* Main content area - responsive layout */}
+      <div className="flex flex-col lg:grid lg:grid-cols-2 gap-8 max-w-7xl mx-auto w-full px-4">
+        {/* Left column - Controls (hidden on mobile, shown on lg+) */}
+        <div className="hidden lg:flex flex-col gap-8 justify-start">
+          {/* Action buttons */}
+          <GaltonActions
+            onDropBall={dropBall}
+            onDropMultipleBalls={dropMultipleBalls}
+            onReset={resetSimulation}
+          />
 
-      {/* Canvas Container */}
-      <div ref={containerRef} className="flex flex-col items-center relative w-full mx-auto">
-        <canvas
-          ref={canvasRef}
-          className="brutal-border-thick brutal-shadow-xl bg-white block"
-          width={canvasWidth}
-          height={canvasHeight}
-          style={{ maxWidth: '100%', height: 'auto' }}
-        />
-
-        {/* Bin labels with neubrutalism styling */}
-        <div
-          className="flex w-full brutal-border-thick brutal-shadow-xl -mt-1"
-          style={{ maxWidth: `${canvasWidth}px` }}>
-          {binCounts.map((count, index) => {
-            const isFlashing = flashingBins.has(index)
-            const bgColor = brutalBallColors[index]
-
-            return (
-              <div
-                key={index}
-                className="flex-1 text-center font-black text-black relative overflow-hidden transition-all duration-200 border-r-4 border-black last:border-r-0"
-                style={{
-                  backgroundColor: isFlashing ? '#FFFFFF' : bgColor,
-                  minHeight: `${50 * scale}px`,
-                }}>
-                {/* Content */}
-                <div className="relative z-10 flex flex-col justify-center items-center h-full py-3">
-                  <div className="text-lg sm:text-2xl font-black text-black">{count}</div>
-                </div>
-
-                {/* Flash effect */}
-                {isFlashing && <div className="absolute inset-0 bg-white animate-pulse"></div>}
-              </div>
-            )
-          })}
+          {/* Controls */}
+          <GaltonControls
+            temperature={temperature}
+            setTemperature={setTemperature}
+            randomness={randomness}
+            setRandomness={setRandomness}
+            ballCollisions={ballCollisions}
+            setBallCollisions={setBallCollisions}
+          />
         </div>
 
-        {/* Bar chart below bin labels */}
-        <div
-          className="w-full bg-white brutal-border-thick brutal-shadow-xl pt-6"
-          style={{ maxWidth: `${canvasWidth}px` }}>
+        {/* Right column - Galton Board */}
+        <div className="flex flex-col items-center">
+          {/* Mobile controls (shown on mobile, hidden on lg+) */}
+          <div className="lg:hidden mb-8">
+            <GaltonActions
+              onDropBall={dropBall}
+              onDropMultipleBalls={dropMultipleBalls}
+              onReset={resetSimulation}
+            />
+          </div>
+
+          {/* Canvas Container */}
           <div
-            className="flex items-end border-b-4 border-black"
-            style={{ height: `${120 * scale}px` }}>
-            {binCounts.map((count, index) => {
-              const maxCount = Math.max(...binCounts, 1)
-              const height = (count / maxCount) * 100 * scale
-              const bgColor = brutalBallColors[index]
+            ref={containerRef}
+            className="flex flex-col items-center relative w-full max-w-4xl mx-auto">
+            <Card 
+              className="p-0 overflow-hidden bg-gradient-to-br from-black/80 to-black/95 neon-panel shadow-neon-card"
+              style={{
+                border: '2px solid #00f0ff',
+                boxShadow: '0 0 10px #00f0ff, 0 0 20px rgba(0, 240, 255, 0.4), inset 0 0 10px rgba(0, 0, 0, 0.8)'
+              }}>
+              <canvas
+                ref={canvasRef}
+                className="block canvas-neon-bg"
+                width={canvasWidth}
+                height={canvasHeight}
+                style={{ 
+                  maxWidth: '100%', 
+                  height: 'auto', 
+                  background: 'transparent',
+                  filter: 'drop-shadow(0 0 10px rgba(0, 245, 255, 0.2))'
+                }}
+              />
 
-              return (
-                <div
-                  key={index}
-                  className="flex-1 flex flex-col items-center justify-end border-r-4 border-black last:border-r-0">
-                  <div
-                    className="w-full transition-all duration-300 ease-out brutal-border"
-                    style={{
-                      height: `${height}px`,
-                      backgroundColor: bgColor,
-                      marginBottom: '4px',
-                    }}
-                  />
-                </div>
-              )
-            })}
-          </div>
-
-          {/* Bin labels for chart */}
-          <div className="flex mt-4 pb-4">
-            {binCounts.map((_, index) => (
+              {/* Bin labels */}
               <div
-                key={index}
-                className="flex-1 text-center text-lg font-black text-black uppercase">
-                {index}
+                className="flex w-full bg-black/60 backdrop-blur-sm border-t-2"
+                style={{ 
+                  maxWidth: `${canvasWidth}px`,
+                  borderTopColor: '#FF69B4',
+                  boxShadow: '0 -2px 20px rgba(255, 105, 180, 0.5), inset 0 2px 10px rgba(255, 255, 255, 0.2)'
+                }}>
+                {binCounts.map((count, index) => {
+                  const isFlashing = flashingBins.has(index)
+                  const bgColor = synthBallColors[index]
+
+                  return (
+                    <div
+                      key={index}
+                      className="flex-1 text-center font-black relative overflow-hidden transition-all duration-300 border-r border-white/10 last:border-r-0"
+                      style={{
+                        backgroundColor: isFlashing ? bgColor : `${bgColor}40`,
+                        minHeight: `${50 * scale}px`,
+                        boxShadow: isFlashing ? `0 0 30px ${bgColor}, inset 0 0 20px rgba(255,255,255,0.3)` : `inset 0 0 10px ${bgColor}`,
+                      }}>
+                      {/* Content */}
+                      <div className="relative z-10 flex flex-col justify-center items-center h-full py-3">
+                        <div
+                          className="text-lg sm:text-2xl font-black transition-all duration-300"
+                          style={{ 
+                            color: bgColor,
+                            textShadow: isFlashing ? `0 0 10px ${bgColor}, 0 0 20px ${bgColor}` : 'none'
+                          }}>
+                          {count}
+                        </div>
+                      </div>
+
+                      {/* Enhanced glow effect */}
+                      {isFlashing && (
+                        <div
+                          className="absolute inset-0 animate-pulse"
+                          style={{
+                            backgroundColor: `${bgColor}40`,
+                          }}
+                        />
+                      )}
+                    </div>
+                  )
+                })}
               </div>
-            ))}
+
+              {/* Histogram/Bar Chart */}
+              <div
+                className="w-full bg-black/40 backdrop-blur-sm mt-2 p-4 border border-white/10 rounded-lg"
+                style={{ 
+                  maxWidth: `${canvasWidth}px`,
+                  backgroundImage: `
+                    linear-gradient(rgba(0, 240, 255, 0.1) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(0, 240, 255, 0.1) 1px, transparent 1px)
+                  `,
+                  backgroundSize: `${100 / binCounts.length}% ${20 * scale}px`
+                }}>
+                <div
+                  className="flex items-end border-b border-white/20"
+                  style={{ height: `${120 * scale}px` }}>
+                  {binCounts.map((count, index) => {
+                    const maxCount = Math.max(...binCounts, 1)
+                    const height = (count / maxCount) * 100 * scale
+                    const bgColor = synthBallColors[index]
+
+                    return (
+                      <div
+                        key={index}
+                        className="flex-1 flex flex-col items-center justify-end border-r border-white/10 last:border-r-0">
+                        <div
+                          className="w-full transition-all duration-500 ease-out border border-white/20 rounded-t"
+                          style={{
+                            height: `${height}px`,
+                            backgroundColor: bgColor,
+                            marginBottom: '2px',
+                            boxShadow: `0 0 20px ${bgColor}, inset 0 0 10px rgba(255,255,255,0.2)`,
+                          }}
+                        />
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+
+              {/* Position numbers */}
+              <div
+                className="flex w-full mt-4 p-2"
+                style={{ maxWidth: `${canvasWidth}px` }}>
+                {Array.from({ length: 9 }, (_, i) => (
+                  <div key={i} className="flex-1 text-center">
+                    <div className="text-sm sm:text-lg font-bold" style={{ color: '#00f0ff' }}>
+                      {i}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Total balls counter */}
+              <div className="bg-black/60 backdrop-blur-sm p-4 border-t border-cyan-500/30 glass-strong">
+                <div className="text-center">
+                  <div 
+                    className="text-2xl sm:text-3xl font-black uppercase tracking-wider neon-text-cyan animate-neon-pulse"
+                    style={{ 
+                      textShadow: '0 0 15px rgba(0, 245, 255, 0.8), 0 0 30px rgba(0, 245, 255, 0.5), 0 0 45px rgba(0, 245, 255, 0.3)'
+                    }}>
+                    Total Balls: {ballCount}
+                  </div>
+                </div>
+              </div>
+            </Card>
           </div>
 
-          {/* Total balls counter */}
-          <div className="text-center pb-6 mx-4 mb-4 p-4">
-            <p className="text-2xl font-black text-black uppercase tracking-wider">
-              TOTAL BALLS: {ballCount}
-            </p>
+          {/* Mobile controls (shown on mobile, hidden on lg+) */}
+          <div className="lg:hidden mt-8 w-full">
+            <GaltonControls
+              temperature={temperature}
+              setTemperature={setTemperature}
+              randomness={randomness}
+              setRandomness={setRandomness}
+              ballCollisions={ballCollisions}
+              setBallCollisions={setBallCollisions}
+            />
           </div>
         </div>
       </div>
-
-      {/* Controls */}
-      <GaltonControls
-        temperature={temperature}
-        setTemperature={setTemperature}
-        randomness={randomness}
-        setRandomness={setRandomness}
-        ballCollisions={ballCollisions}
-        setBallCollisions={setBallCollisions}
-      />
     </div>
   )
 }
