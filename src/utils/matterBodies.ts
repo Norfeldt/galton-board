@@ -60,7 +60,7 @@ export const createSlider = (
   const boardMargin = 60 * scale
   const trackWidth = canvasWidth - 2 * boardMargin
   const trackHeight = 8 * scale // Thicker track
-  const trackY = 40 * scale
+  const trackY = 40 * scale // Balanced padding with bottom
   const trackX = canvasWidth / 2
 
   const handleWidth = 50 * scale // Larger handle for synthwave
@@ -107,7 +107,7 @@ export const createPegs = (
   const rowInfo: number[] = []
   const scale = canvasWidth / 800
   const pegRadius = 8 * scale // Reduced for better ball-to-peg ratio
-  const startY = 120 * scale
+  const startY = 80 * scale
   const rowSpacing = 25 * scale // Tighter vertical spacing for more rows
   const pegSpacing = 35 * scale // Tighter horizontal spacing
   const extendMargin = 100 * scale
@@ -151,12 +151,15 @@ export const createPegs = (
 
       const peg = Matter.Bodies.circle(x, y, pegRadius, {
         isStatic: true,
+        restitution: 0.5, // Increased bounce for better distribution
         render: {
-          fillStyle: pegColor,
-          strokeStyle: 'rgba(255, 255, 255, 0.3)', // Subtle white glow for depth
-          lineWidth: 1.5 * scale,
+          fillStyle: 'transparent', // Make transparent so our custom gradient shows
+          strokeStyle: 'transparent',
+          lineWidth: 0,
         },
       })
+      // Store the original color as a custom property
+      ;(peg as Matter.Body & { originalColor: string }).originalColor = pegColor
       pegs.push(peg)
       originalPositions.push({ x, y })
       rowInfo.push(row)
@@ -211,6 +214,23 @@ export const createBins = (
       label: `bin-wall-${i}`,
     })
     bins.push(wall)
+
+    // Add a small circle on top of each wall to prevent balls from getting stuck
+    const circleRadius = 4 * scale // Small circle
+    // Position so only 2px of the circle shows above the wall
+    const circleY = binY - binHeight / 2 + circleRadius - 2 * scale
+    
+    // Create a circle that will deflect balls
+    const circle = Matter.Bodies.circle(binX, circleY, circleRadius, {
+      isStatic: true,
+      render: {
+        fillStyle: 'transparent',
+        strokeStyle: 'transparent',
+        lineWidth: 0,
+      },
+      label: `bin-wall-cap-${i}`,
+    })
+    bins.push(circle)
   }
 
   return bins
@@ -228,9 +248,9 @@ export const createBall = (
   const ball = Matter.Bodies.circle(dropX, 50 * scale, 3 * scale, {
     // Much smaller balls for proper physics
     // Balls should be much smaller than pegs for good randomization
-    restitution: randomness ? 0.6 : 0.7, // Higher bounce for better randomization
+    restitution: randomness ? 0.5 : 0.6, // Increased bounce for better distribution
     friction: randomness ? 0.001 : 0.001, // Very low friction for clean bounces
-    frictionAir: randomness ? 0.01 : 0.005,
+    frictionAir: randomness ? 0.002 : 0.001, // Reduced air friction for better flow
     render: {
       fillStyle: ballColor,
       strokeStyle: 'transparent', // No border
