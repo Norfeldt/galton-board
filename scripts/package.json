@@ -1,0 +1,12 @@
+{
+  "name": "galton-board-scripts",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Utility scripts for Galton Board project",
+  "scripts": {
+    "optimize-bg": "node optimize-background.js"
+  },
+  "dependencies": {
+    "sharp": "^0.33.1"
+  }
+}
