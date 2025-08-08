@@ -1,6 +1,10 @@
 # Galton Board: Visualizing Normal Distribution and LLM Temperature
 
-A interactive Galton board (also known as a bean machine or quincunx) that demonstrates the emergence of normal distribution and provides intuitive understanding of concepts like temperature in Large Language Models.
+An interactive Galton board (also known as a bean machine or quincunx) that demonstrates the emergence of normal distribution and provides intuitive understanding of concepts like temperature in Large Language Models.
+
+## Live Demo
+
+Experience the app on GitHub Pages: [https://norfeldt.github.io/galton-board/](https://norfeldt.github.io/galton-board/)
 
 ## What is a Galton Board?
 
@@ -16,9 +20,9 @@ This interactive simulation helps build mental models around:
 - **Bell Curve Formation**: Visual demonstration of how individual random events aggregate into predictable patterns
 - **Statistical Variance**: How the spread of outcomes relates to the underlying randomness
 
-### LLM Concepts Visualization
+### LLM Mental Model Visualization
 
-The Galton board serves as an excellent analogy for understanding Large Language Model behavior:
+The Galton board serves as an effective mental model for understanding Large Language Model behavior:
 
 #### Temperature Parameter
 - **Low Temperature (0.1-0.3)**: Like a narrow Galton board where balls have less room to spread - outputs are more deterministic and focused
@@ -30,18 +34,20 @@ Each peg represents a decision point where the model chooses the next token base
 
 ## Features
 
-- Interactive controls to adjust "temperature" and see real-time effects
-- Histogram display showing distribution formation
-- Multiple ball drop modes (single, burst, continuous)
-- Statistical overlays showing mean, standard deviation, and confidence intervals
-- Side-by-side comparison of different temperature settings
+- Temperature control that increases peg "wiggle" for more randomness
+- Drop position slider with color-coded indicator
+- Toggle randomness on/off
+- Toggle ball collisions on/off
+- Histogram/bar chart showing bin counts with animated highlights
+- Batch drop actions: 1, 10, 100, 500
+- Responsive layout with mobile-friendly controls
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js (v18 or higher)
-- npm or yarn
+- Node.js (v18 or higher) or Bun
+- Package manager: Bun (recommended) or npm/yarn/pnpm
 
 ### Installation
 
@@ -49,24 +55,46 @@ Each peg represents a decision point where the model chooses the next token base
 # Clone the repository
 git clone <repository-url>
 cd galton-board
+```
 
-# Install dependencies
+Using Bun (recommended):
+
+```bash
+bun install
+bun run dev
+```
+
+Using npm:
+
+```bash
 npm install
-
-# Start the development server
 npm run dev
+```
+
+Using yarn:
+
+```bash
+yarn
+yarn dev
+```
+
+Using pnpm:
+
+```bash
+pnpm install
+pnpm dev
 ```
 
 ### Usage
 
 1. Open your browser to `http://localhost:5173`
-2. Use the temperature slider to adjust the randomness level
-3. Drop balls and observe the distribution patterns
-4. Compare different settings to understand the relationship between randomness and distribution
+2. Adjust temperature; optionally toggle randomness and ball collisions
+3. Choose a drop position with the slider and drop balls
+4. Use batch buttons (10/100/500) to quickly build the distribution
 
 ## Technology Stack
 
-- **React** - UI framework
+ - **React** - UI library
 - **TypeScript** - Type safety and better developer experience
 - **Vite** - Fast build tool and development server
 - **Tailwind CSS** - Utility-first CSS framework
