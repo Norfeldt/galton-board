@@ -121,22 +121,33 @@
     @apply text-foreground;
     font-family: 'JetBrains Mono', monospace;
     font-weight: 500;
-    margin: 0;
-    padding: 0;
-    overflow-x: hidden;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: none !important;
+    height: 100%;
+    min-height: 100vh;
     background: transparent !important;
     background-color: transparent !important;
+    position: relative;
+    overflow-x: hidden;
   }
   
   html {
     margin: 0;
     padding: 0;
+    width: 100%;
+    height: 100%;
     background: transparent !important;
     background-color: transparent !important;
   }
   
   #root {
     min-height: 100vh;
+    width: 100vw !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    position: relative;
   }
 
   /* Enhanced Neon Panel Styling */
@@ -449,49 +460,69 @@
 
   /* Responsive synthwave background */
   .synthwave-bg {
-    position: relative;
-    background-color: #0a0a0a;
+    /* Base gradient that matches image edges */
+    background: 
+      radial-gradient(ellipse at center, #1a0033 0%, #0a0011 70%, #000000 100%);
     background-position: center center;
     background-size: cover;
     background-repeat: no-repeat;
-    background-attachment: fixed;
-    width: 100%;
-    min-height: 100vh;
+    position: relative;
+  }
+
+  /* Dark overlay to darken the background image */
+  .synthwave-bg::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4); /* 40% black overlay */
+    pointer-events: none;
+    z-index: 1;
   }
 
   /* Mobile (default) - Portrait orientation */
   .synthwave-bg {
-    background-image: url('/backgrounds/bg-mobile.jpg');
+    background: 
+      url('/synthwave-horizon-bg-ultrawide.png') center center / cover no-repeat,
+      radial-gradient(ellipse at center, #1a0033 0%, #0a0011 70%, #000000 100%);
   }
 
   /* Tablet - Landscape orientation */
   @media (min-width: 768px) {
     .synthwave-bg {
-      background-image: url('/backgrounds/bg-tablet.jpg');
+      background: 
+        url('/synthwave-horizon-bg-ultrawide.png') center center / cover no-repeat,
+        radial-gradient(ellipse at center, #1a0033 0%, #0a0011 70%, #000000 100%);
     }
   }
 
   /* Desktop - Standard HD */
   @media (min-width: 1024px) {
     .synthwave-bg {
-      background-image: url('/backgrounds/bg-desktop.jpg');
+      background: 
+        url('/synthwave-horizon-bg-ultrawide.png') center center / cover no-repeat,
+        radial-gradient(ellipse at center, #1a0033 0%, #0a0011 70%, #000000 100%);
     }
   }
 
   /* Ultrawide monitors */
   @media (min-width: 2560px) {
     .synthwave-bg {
-      background-image: url('/backgrounds/bg-ultrawide.jpg');
+      background: 
+        url('/synthwave-horizon-bg-ultrawide.png') center center / cover no-repeat,
+        radial-gradient(ellipse at center, #1a0033 0%, #0a0011 70%, #000000 100%);
     }
   }
 
   /* Fallback for development - use original image */
   .synthwave-bg-fallback {
-    background-image: url('./synthwave-horizon-bg-ultrawide.png.png');
+    background-image: url('./synthwave-horizon-bg-ultrawide.png');
   }
 
-  /* Support for WebP with fallback */
-  .webp .synthwave-bg {
+  /* Support for WebP with fallback - DISABLED for now */
+  /* .webp .synthwave-bg {
     background-image: url('/backgrounds/bg-mobile.webp');
   }
 
@@ -511,11 +542,46 @@
     .webp .synthwave-bg {
       background-image: url('/backgrounds/bg-ultrawide.webp');
     }
+  } */
+
+  /* Retro Synthwave Switch Styles */
+  /* Left indicator light */
+  [data-state="checked"] .switch-indicator-left {
+    background-color: var(--switch-active-color) !important;
+    box-shadow: 0 0 8px var(--switch-active-color), 0 0 16px var(--switch-active-color) !important;
   }
 
-  /* Ensure synth-grid works properly on top */
-  .synthwave-bg.synth-grid {
-    position: relative;
+  /* Right indicator light */
+  [data-state="checked"] .switch-indicator-right {
+    background-color: var(--switch-secondary-color) !important;
+    box-shadow: 0 0 8px var(--switch-secondary-color), 0 0 16px var(--switch-secondary-color) !important;
+  }
+
+  /* Additional neon glow for checked state with dynamic color */
+  [data-state="checked"] {
+    border-color: var(--switch-active-color) !important;
+  }
+  
+  /* Custom box shadow for checked state that uses the active color */
+  [data-state="checked"].switch-custom-glow {
+    box-shadow: 
+      /* Outer frame depth */
+      inset 0 2px 4px rgba(255, 255, 255, 0.1),
+      inset 0 -2px 4px rgba(0, 0, 0, 0.8),
+      /* Side shadows for 3D effect */
+      -4px 0 8px rgba(0, 0, 0, 0.5),
+      4px 0 8px rgba(0, 0, 0, 0.5),
+      /* Bottom shadow */
+      0 4px 8px rgba(0, 0, 0, 0.6),
+      /* Neon glow using CSS variable (handled in component) */
+      var(--switch-glow-effect) !important;
+  }
+
+  /* Power indicator glow for checked state */
+  [data-state="checked"] .switch-power-indicator {
+    opacity: 1 !important;
+    background: var(--switch-active-color) !important;
+    box-shadow: 0 0 6px var(--switch-active-color), 0 0 12px var(--switch-active-color) !important;
   }
 
 }
