@@ -93,8 +93,8 @@ const GaltonBoard: React.FC = () => {
       pendingDropsRef.current.forEach((timeoutId) => clearTimeout(timeoutId))
       pendingDropsRef.current = []
 
-      // Use 100ms delay (2x speed) for 500 balls, 200ms for others
-      const delay = count === 500 ? 100 : 200
+      // Use 50ms delay (2x speed) for 500 balls, 100ms for others
+      const delay = count === 500 ? 50 : 100
 
       for (let i = 0; i < count; i++) {
         const timeoutId = setTimeout(() => dropBall(), i * delay)
@@ -130,7 +130,7 @@ const GaltonBoard: React.FC = () => {
       <GaltonTitle />
 
       {/* Main content area - responsive layout */}
-      <div className="flex flex-col lg:grid lg:grid-cols-2 gap-8 max-w-7xl mx-auto w-full px-4">
+      <div className="flex flex-col lg:grid lg:grid-cols-2 gap-8 max-w-[1280px] mx-auto w-full px-4 sm:px-6 md:px-8">
         {/* Left column - Controls (hidden on mobile, shown on lg+) */}
         <div className="hidden lg:flex flex-col gap-8 justify-start">
           {/* Action buttons */}
@@ -152,9 +152,9 @@ const GaltonBoard: React.FC = () => {
         </div>
 
         {/* Right column - Galton Board */}
-        <div className="flex flex-col items-center">
+        <div className="flex flex-col items-center w-full">
           {/* Mobile controls (shown on mobile, hidden on lg+) */}
-          <div className="lg:hidden mb-8">
+          <div className="lg:hidden mb-8 w-full">
             <GaltonActions
               onDropBall={dropBall}
               onDropMultipleBalls={dropMultipleBalls}
@@ -187,11 +187,9 @@ const GaltonBoard: React.FC = () => {
 
               {/* Bin labels */}
               <div
-                className="flex w-full bg-black/60 backdrop-blur-sm border-t-2"
+                className="flex w-full bg-black/60 backdrop-blur-sm"
                 style={{ 
-                  maxWidth: `${canvasWidth}px`,
-                  borderTopColor: '#FF69B4',
-                  boxShadow: '0 -2px 20px rgba(255, 105, 180, 0.5), inset 0 2px 10px rgba(255, 255, 255, 0.2)'
+                  maxWidth: `${canvasWidth}px`
                 }}>
                 {binCounts.map((count, index) => {
                   const isFlashing = flashingBins.has(index)
@@ -234,17 +232,12 @@ const GaltonBoard: React.FC = () => {
 
               {/* Histogram/Bar Chart */}
               <div
-                className="w-full bg-black/40 backdrop-blur-sm mt-2 p-4 border border-white/10 rounded-lg"
+                className="w-full bg-black/40 backdrop-blur-sm mt-2 p-4"
                 style={{ 
-                  maxWidth: `${canvasWidth}px`,
-                  backgroundImage: `
-                    linear-gradient(rgba(0, 240, 255, 0.1) 1px, transparent 1px),
-                    linear-gradient(90deg, rgba(0, 240, 255, 0.1) 1px, transparent 1px)
-                  `,
-                  backgroundSize: `${100 / binCounts.length}% ${20 * scale}px`
+                  maxWidth: `${canvasWidth}px`
                 }}>
                 <div
-                  className="flex items-end border-b border-white/20"
+                  className="flex items-end"
                   style={{ height: `${120 * scale}px` }}>
                   {binCounts.map((count, index) => {
                     const maxCount = Math.max(...binCounts, 1)
@@ -284,7 +277,7 @@ const GaltonBoard: React.FC = () => {
               </div>
 
               {/* Total balls counter */}
-              <div className="bg-black/60 backdrop-blur-sm p-4 border-t border-cyan-500/30 glass-strong">
+              <div className="bg-black/60 backdrop-blur-sm p-4">
                 <div className="text-center">
                   <div 
                     className="text-2xl sm:text-3xl font-black uppercase tracking-wider neon-text-cyan animate-neon-pulse"
